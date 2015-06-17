@@ -1,6 +1,9 @@
 ﻿#requires -Version 5
 
-<#ToDo:
+<#
+ ToDo:
+
+ Bot proper:
  * Create function for installing phantomJS and Selenium (currently just lots of duplicated cmdlets.)
  * Greeter:
    * Reset greet delay if viewer leaves chat (i.e. if viewer leaves before 30 seconds, don't auto greet if they re-visit later unless they stay for delay)
@@ -19,7 +22,88 @@
  * Command to mute/unmute the bot
  * 'status' updates? (change an OBS ticker?)
  * control OBS/Foobar2000 through bot?
+ * stop-stream: output to chat about following and about sending in requests, and then stop the stream via OBS (hotkeys).
+
+ Dashboard:
+ * Timeout widgets for other commands. (e.g. !help)
+ * Greet stream viewers in the text box.
+ * Stream up time in number widget
+ * consider third party widget (progress bar, github, weather, clock?)
 #>
+
+function Post-JsonToDashboard
+{
+    <#
+        .Synopsis
+        Short description
+        .DESCRIPTION
+        Long description
+        .EXAMPLE
+        Example of how to use this cmdlet
+        .EXAMPLE
+        Another example of how to use this cmdlet
+    #>
+    [CmdletBinding()]
+    [Alias()]
+    Param (
+        # Parameter help
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [PSCustomObject] $Object,
+
+        # Parameter help
+        [Parameter(Mandatory=$true,
+                   Position=1)]
+        [string] $Widget
+    )
+    
+    $json = $Object | ConvertTo-Json
+    
+    $null = Invoke-RestMethod -Method Post -Body $json -Uri "http://dash1:3030/widgets/$Widget"
+}
+
+function Download-RequiredSoftware
+{
+    <#
+        .Synopsis
+        Short description
+        .DESCRIPTION
+        Long description
+        .EXAMPLE
+        Example of how to use this cmdlet
+        .EXAMPLE
+        Another example of how to use this cmdlet
+    #>
+    [CmdletBinding()]
+    [Alias()]
+    Param (
+        [string] $powerBotPath = (Split-Path (Get-Module -Name 'PowerBot' -ListAvailable).Path)
+    )
+
+    $null = Start-Job -Name 'SeleniumInstall' -ScriptBlock {
+        $powerBotPath = $args[0]
+        if (!(Test-Path -Path (Join-Path -Path $powerBotPath -ChildPath 'selenium\Selenium.WebDriverBackedSelenium.dll'))) 
+        {
+            $seleniumSource = 'http://selenium-release.storage.googleapis.com/2.45/selenium-dotnet-2.45.0.zip'
+            $seleniumArchive = Join-Path -Path $powerBotPath -ChildPath 'selenium.zip'
+ 
+            Invoke-WebRequest -Uri $seleniumSource -OutFile $seleniumArchive
+
+            Expand-Archive -Path $seleniumArchive -DestinationPath (Join-Path -Path $powerBotPath -ChildPath '\temp-selenium')
+
+            $seleniumPath = Join-Path -Path $powerBotPath -ChildPath 'Selenium\'
+
+            if (!(Test-Path -Path $seleniumPath)) 
+            {
+                $null = New-Item -ItemType Directory -Path $seleniumPath
+            }
+            Copy-Item -Path (Join-Path -Path $powerBotPath -ChildPath '\temp-selenium\net40\*') -Destination $seleniumPath
+
+            Remove-Item -Path $seleniumArchive
+            Remove-Item -Path (Join-Path -Path $powerBotPath -ChildPath '\temp-selenium') -Recurse -Force
+        }
+    } -ArgumentList @(,$powerBotPath)
+}
 
 function Initialize-PowerBot 
 {
@@ -621,15 +705,102 @@ function Start-PBLoop
     $null = Start-Job -Name 'Greeter' -ScriptBlock {
         try 
         {
-            . 'C:\GitHub\powershell-depot\livecoding.tv\PowerBot.ps1'
             Initialize-PowerBot
-            Out-Stream -Message 'PowerBot: Online'
+            Out-Stream -Message 'PowerBot: Greeter Online'
             While ($true) 
             {
                 Greet-StreamViewers
                 Read-Stream
                 Check-PBCommand
                 Start-Sleep -Seconds 1
+            }
+        }
+        catch 
+        {
+
+        }
+        finally 
+        {
+            $driver.Quit()
+        }
+    }
+
+    $null = Start-Job -Name 'CommandTimout' -ScriptBlock {
+        try 
+        {
+            Initialize-PowerBot
+            Out-Stream -Message 'PowerBot: CommandTimout Online'
+            While ($true) 
+            {
+                $fullLog = Import-Csv -Path $Global:ChatLog
+                $delay = (Get-Date).AddMinutes(-60)
+                
+                $commandOutput = $Global:PBCommands.'!twitter'
+                $testString = $commandOutput.Replace(' https://twitter.com/WindosNZ','')
+                
+                $commandResponses = $fullLog | Where-Object -FilterScript {
+                    $_.Message -like "$testString*" -and $_.User -eq 'PowerBot'
+                }
+                
+                foreach ($commandResponse in $commandResponses) 
+                {
+                    $responseTime = Get-Date -Date $commandResponse.Time
+                    if ($responseTime -gt $delay) 
+                    {
+                        $timeToGo = [math]::Round((New-TimeSpan -Start $delay -End $responseTime).TotalMinutes)
+                
+                        $objProperties = @{'auth_token' = 'YOUR_AUTH_TOKEN';
+                                           'value' = $timeToGo}
+                        $obj = New-Object -TypeName PSCustomObject -Property $objProperties
+                        
+                        Post-JsonToDashboard -Object $obj -Widget 'twitterTimeOut'
+                    }
+                }
+                Start-Sleep -Seconds 50
+            }
+        }
+        catch 
+        {
+
+        }
+        finally 
+        {
+            $driver.Quit()
+        }
+    }
+
+    $null = Start-Job -Name 'LiveViewers' -ScriptBlock {
+        try 
+        {
+            Initialize-PowerBot
+            Out-Stream -Message 'PowerBot: LiveViewers Online'
+            $start = Get-Date
+            
+            $data = @()
+            
+            while ($true) {
+                $now = get-date
+                $secondsPassed = (New-TimeSpan -Start $start -End $now).TotalSeconds
+                $x = $secondsPassed
+                $y = (Get-StreamViewers | where {$_ -ne 'Windos' -and $_ -ne 'PowerBot'} | Measure).Count
+                
+                $data += @{'x' = $x;
+                           'y' = $y}
+                
+                $displayData = @()
+                if ($data.Length -gt 240) {
+                    $displayData = $data[-240..-1]
+                } else {
+                    $displayData = $data
+                }
+            
+                $objProperties = @{'auth_token' = 'YOUR_AUTH_TOKEN';
+                                   'points' = $displayData}
+                $obj = New-Object -TypeName PSCustomObject -Property $objProperties
+                
+                Post-JsonToDashboard -Object $obj -Widget 'liveviewers'
+                
+                Start-Sleep -Seconds 15
             }
         }
         catch 
