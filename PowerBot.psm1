@@ -1,126 +1,93 @@
 ﻿#requires -Version 5
 
 <#
- ToDo:
+        ToDo:
 
- Bot proper:
- * Create function for installing phantomJS and Selenium (currently just lots of duplicated cmdlets.)
- * Greeter:
-   * Reset greet delay if viewer leaves chat (i.e. if viewer leaves before 30 seconds, don't auto greet if they re-visit later unless they stay for delay)
-   (this may be fixed, needs testing off stream)
- * Revisit dynamically adding commands, add to PBLoop.
-   * Make added commands persistent.
-   * Edit commands, remove commands.
- * Add comment based help
- * Track 'active' viewers (people who have typed in chat between time x and y)
- * Implement raffle system.
- * Polls/votes (maybe leverage new lc.tv facility)
- * New follower notifications (this and lc.tv poll facility will require bot to log in to site as myself rather than its own account.)
- * Limit some commands to followers only?
- * Song requests?
- * Creating countdown (progress bars) from chat command
- * Command to mute/unmute the bot
- * 'status' updates? (change an OBS ticker?)
- * control OBS/Foobar2000 through bot?
- * stop-stream: output to chat about following and about sending in requests, and then stop the stream via OBS (hotkeys).
+        Bot proper:
+        * Create function for installing phantomJS and Selenium (currently just lots of duplicated cmdlets.)
+        * Greeter:
+        * Reset greet delay if viewer leaves chat (i.e. if viewer leaves before 30 seconds, don't auto greet if they re-visit later unless they stay for delay)
+        (this may be fixed, needs testing off stream)
+        * Revisit dynamically adding commands, add to PBLoop.
+        * Make added commands persistent.
+        * Edit commands, remove commands.
+        * Add comment based help
+        * Track 'active' viewers (people who have typed in chat between time x and y)
+        * Implement raffle system.
+        * Polls/votes (maybe leverage new lc.tv facility)
+        * New follower notifications (this and lc.tv poll facility will require bot to log in to site as myself rather than its own account.)
+        * Limit some commands to followers only?
+        * Song requests?
+        * Creating countdown (progress bars) from chat command
+        * Command to mute/unmute the bot
+        * 'status' updates? (change an OBS ticker?)
+        * control OBS/Foobar2000 through bot?
+        * stop-stream: output to chat about following and about sending in requests, and then stop the stream via OBS (hotkeys).
 
- Dashboard:
- * Timeout widgets for other commands. (e.g. !help)
- * Greet stream viewers in the text box.
- * Stream up time in number widget
- * consider third party widget (progress bar, github, weather, clock?)
+        Dashboard:
+        * Timeout widgets for other commands. (e.g. !help)
+        * Greet stream viewers in the text box.
+        * Stream up time in number widget
+        * consider third party widget (progress bar, github, weather, clock?)
 #>
 
-function Post-JsonToDashboard
+function Push-DashingJson
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
     Param (
         # Parameter help
-        [Parameter(Mandatory=$true,
-                   Position=0)]
-        [PSCustomObject] $Object,
+        [Parameter(Mandatory = $true,
+                Position = 0,
+        ValueFromPipeline = $true)]
+        [PSCustomObject[]] $Object,
 
         # Parameter help
-        [Parameter(Mandatory=$true,
-                   Position=1)]
-        [string] $Widget
+        [Parameter(Mandatory = $true,
+        Position = 1)]
+        [string] $Widget,
+
+        # Specifies the Uniform Resource Identifier (URI) of the Dashing installation.
+        [Parameter(Mandatory = $false)]
+        [string] $Uri = 'http://dash1:3030'
     )
     
-    $json = $Object | ConvertTo-Json
-    
-    $null = Invoke-RestMethod -Method Post -Body $json -Uri "http://dash1:3030/widgets/$Widget"
-}
-
-function Download-RequiredSoftware
-{
-    <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
-    #>
-    [CmdletBinding()]
-    [Alias()]
-    Param (
-        [string] $powerBotPath = (Split-Path (Get-Module -Name 'PowerBot' -ListAvailable).Path)
-    )
-
-    $null = Start-Job -Name 'SeleniumInstall' -ScriptBlock {
-        $powerBotPath = $args[0]
-        if (!(Test-Path -Path (Join-Path -Path $powerBotPath -ChildPath 'selenium\Selenium.WebDriverBackedSelenium.dll'))) 
+    process
+    {
+        foreach ($obj in $Object)
         {
-            $seleniumSource = 'http://selenium-release.storage.googleapis.com/2.45/selenium-dotnet-2.45.0.zip'
-            $seleniumArchive = Join-Path -Path $powerBotPath -ChildPath 'selenium.zip'
- 
-            Invoke-WebRequest -Uri $seleniumSource -OutFile $seleniumArchive
-
-            Expand-Archive -Path $seleniumArchive -DestinationPath (Join-Path -Path $powerBotPath -ChildPath '\temp-selenium')
-
-            $seleniumPath = Join-Path -Path $powerBotPath -ChildPath 'Selenium\'
-
-            if (!(Test-Path -Path $seleniumPath)) 
-            {
-                $null = New-Item -ItemType Directory -Path $seleniumPath
-            }
-            Copy-Item -Path (Join-Path -Path $powerBotPath -ChildPath '\temp-selenium\net40\*') -Destination $seleniumPath
-
-            Remove-Item -Path $seleniumArchive
-            Remove-Item -Path (Join-Path -Path $powerBotPath -ChildPath '\temp-selenium') -Recurse -Force
+            $json = $obj | ConvertTo-Json
+            $null = Invoke-RestMethod -Method Post -Body $json -Uri "$Uri/widgets/$Widget"
         }
-    } -ArgumentList @(,$powerBotPath)
+    }
 }
 
 function Initialize-PowerBot 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
     Param (
-        [string] $powerBotPath = (Split-Path (Get-Module -Name 'PowerBot' -ListAvailable).Path)
+        [string] $powerBotPath = (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path)
     )
     
     $null = Start-Job -Name 'SeleniumInstall' -ScriptBlock {
@@ -181,128 +148,128 @@ function Initialize-PowerBot
         }
     } -ArgumentList @(,$powerBotPath)
 
-    $null = Wait-Job -Name SeleniumInstall -Timeout 180
-    Get-Job -Name SeleniumInstall  | Remove-Job
+    $null = Wait-Job -Name 'Selenium Install' -Timeout 180
+    Get-Job -Name 'Selenium Install'  | Remove-Job
 
-    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\Selenium.WebDriverBackedSelenium.dll')
-    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\ThoughtWorks.Selenium.Core.dll')
-    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\WebDriver.dll')
-    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\WebDriver.Support.dll')
+    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\net40\Selenium.WebDriverBackedSelenium.dll')
+    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\net40\ThoughtWorks.Selenium.Core.dll')
+    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\net40\WebDriver.dll')
+    Add-Type -Path (Join-Path -Path $powerBotPath -ChildPath '\Selenium\net40\WebDriver.Support.dll')
     
-    $null = Wait-Job -Name PhantomJsInstall -Timeout 180
-    Get-Job -Name PhantomJsInstall | Remove-Job
+    $null = Wait-Job -Name 'PhantomJs Install' -Timeout 180
+    Get-Job -Name 'PhantomJs Install' | Remove-Job
 
     $phatomJsService = [OpenQA.Selenium.PhantomJS.PhantomJSDriverService]::CreateDefaultService((Join-Path -Path $powerBotPath -ChildPath '\PhantomJS\'))
     $phatomJsService.HideCommandPromptWindow = $true
     
     $Global:phantomJsDriver = New-Object -TypeName OpenQA.Selenium.PhantomJS.PhantomJSDriver -ArgumentList @(,$phatomJsService)
 
-    $email = ''
-    
-    $pass = ''
-    
-    $Global:phantomJsDriver.Navigate().GoToUrl('https://www.livecoding.tv/accounts/login/')
-    
-    $userNameField = $Global:phantomJsDriver.FindElementById('id_login')
-    $passwordField = $Global:phantomJsDriver.FindElementById('id_password')
-    $buttons = $Global:phantomJsDriver.FindElementsByTagName('button')
-    
-    foreach ($button in $buttons) 
-    {
-        if ($button.Text -eq 'Login') 
-        {
-            $loginButton = $button
-        }
-    }
-    
-    $userNameField.SendKeys(($email | Unprotect-CmsMessage))
-    $passwordField.SendKeys(($pass | Unprotect-CmsMessage))
-    $loginButton.Click()
-    
-    $Global:phantomJsDriver.Navigate().GoToUrl('https://www.livecoding.tv/chat/windos/')
-    
-    $Global:viewersGreeted = @()
-
-    if (!(Test-Path -Path 'C:\GitHub\powershell-depot\livecoding.tv\greeted.csv'))
-    {
-        $null = New-Item -Path 'C:\GitHub\powershell-depot\livecoding.tv\greeted.csv' -ItemType File
-    }
-
-    $importedGreeted = Import-Csv -Path 'C:\GitHub\powershell-depot\livecoding.tv\greeted.csv'
-
-    foreach ($previousGreet in $importedGreeted)
-    {
-        $properties = @{
-            'Name' = $previousGreet.Name
-            'whenGreeted' = (Get-Date $previousGreet.whenGreeted)
-        }
-        $Result = New-Object -TypeName psobject -Property $properties
-        $Global:viewersGreeted += $Result
-    }
-
-    $Global:newViewers = @{}
-    $Global:PBCommands = @{
-        '!help'    = ''
-        '!twitter' = 'Follow Windos on Twitter! https://twitter.com/WindosNZ'
-        '!microsoft' = 'Windos doesn''t work for Microsoft'
-    }
-    $Global:ChatLog = 'C:\GitHub\powershell-depot\livecoding.tv\chatlog.csv'
-    $Global:MemLog = @()
-
-    if (!(Test-Path -Path $Global:ChatLog))
-    {
-        $null = New-Item -Path $Global:ChatLog -ItemType File
-    }
-
-    $existingChat = Import-Csv -Path $Global:ChatLog
-    foreach ($msg in $existingChat) 
-    {
-        $properties = @{
-            'UserName' = $msg.User
-            'Message' = $msg.Message
-        }
-        $Result = New-Object -TypeName psobject -Property $properties
-        $Global:MemLog += $Result
-    }
-
-    $StopLoop = $false
-    [int]$Retrycount = 0
-     
-    do 
-    {
-        try 
-        {
-            $Global:messageTextArea = $Global:phantomJsDriver.FindElementById('message-textarea')
-            $Global:chatSendButton = $Global:phantomJsDriver.FindElementByClassName('submit')
-            $StopLoop = $true
-        }
-        catch 
-        {
-            if ($Retrycount -gt 5)
-            {
-                $StopLoop = $true
-            }
-            else 
-            {
-                Start-Sleep -Seconds 10
-                $Retrycount = $Retrycount + 1
-            }
-        }
-    }
-    While ($StopLoop -eq $false)
+    #$email = ''
+    #
+    #$pass = ''
+    #
+    #$Global:phantomJsDriver.Navigate().GoToUrl('https://www.livecoding.tv/accounts/login/')
+    #
+    #$userNameField = $Global:phantomJsDriver.FindElementById('id_login')
+    #$passwordField = $Global:phantomJsDriver.FindElementById('id_password')
+    #$buttons = $Global:phantomJsDriver.FindElementsByTagName('button')
+    #
+    #foreach ($button in $buttons) 
+    #{
+    #    if ($button.Text -eq 'Login') 
+    #    {
+    #        $loginButton = $button
+    #    }
+    #}
+    #
+    #$userNameField.SendKeys(($email | Unprotect-CmsMessage))
+    #$passwordField.SendKeys(($pass | Unprotect-CmsMessage))
+    #$loginButton.Click()
+    #
+    #$Global:phantomJsDriver.Navigate().GoToUrl('https://www.livecoding.tv/chat/windos/')
+    #
+    #$Global:viewersGreeted = @()
+    #
+    #if (!(Test-Path -Path 'C:\GitHub\powershell-depot\livecoding.tv\greeted.csv'))
+    #{
+    #    $null = New-Item -Path 'C:\GitHub\powershell-depot\livecoding.tv\greeted.csv' -ItemType File
+    #}
+    #
+    #$importedGreeted = Import-Csv -Path 'C:\GitHub\powershell-depot\livecoding.tv\greeted.csv'
+    #
+    #foreach ($previousGreet in $importedGreeted)
+    #{
+    #    $properties = @{
+    #        'Name'      = $previousGreet.Name
+    #        'whenGreeted' = (Get-Date -Date $previousGreet.whenGreeted)
+    #    }
+    #    $Result = New-Object -TypeName psobject -Property $properties
+    #    $Global:viewersGreeted += $Result
+    #}
+    #
+    #$Global:newViewers = @{}
+    #$Global:PBCommands = @{
+    #    '!help'    = ''
+    #    '!twitter' = 'Follow Windos on Twitter! https://twitter.com/WindosNZ'
+    #    '!microsoft' = 'Windos doesn''t work for Microsoft'
+    #}
+    #$Global:ChatLog = 'C:\GitHub\powershell-depot\livecoding.tv\chatlog.csv'
+    #$Global:MemLog = @()
+    #
+    #if (!(Test-Path -Path $Global:ChatLog))
+    #{
+    #    $null = New-Item -Path $Global:ChatLog -ItemType File
+    #}
+    #
+    #$existingChat = Import-Csv -Path $Global:ChatLog
+    #foreach ($msg in $existingChat) 
+    #{
+    #    $properties = @{
+    #        'UserName' = $msg.User
+    #        'Message' = $msg.Message
+    #    }
+    #    $Result = New-Object -TypeName psobject -Property $properties
+    #    $Global:MemLog += $Result
+    #}
+    #
+    #$StopLoop = $false
+    #[int]$Retrycount = 0
+    # 
+    #do 
+    #{
+    #    try 
+    #    {
+    #        $Global:messageTextArea = $Global:phantomJsDriver.FindElementById('message-textarea')
+    #        $Global:chatSendButton = $Global:phantomJsDriver.FindElementByClassName('submit')
+    #        $StopLoop = $true
+    #    }
+    #    catch 
+    #    {
+    #        if ($Retrycount -gt 5)
+    #        {
+    #            $StopLoop = $true
+    #        }
+    #        else 
+    #        {
+    #            Start-Sleep -Seconds 10
+    #            $Retrycount = $Retrycount + 1
+    #        }
+    #    }
+    #}
+    #While ($StopLoop -eq $false)
 }
 
 function Out-Stream 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -331,14 +298,14 @@ function Out-Stream
 function Read-Stream 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -393,14 +360,14 @@ function Read-Stream
 function Log-Chat 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -420,14 +387,14 @@ function Log-Chat
 function Get-StreamViewers 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -445,14 +412,14 @@ function Get-StreamViewers
 function Greet-StreamViewers 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -478,7 +445,7 @@ function Greet-StreamViewers
         if ($user -ne 'Windos' -and $user -ne 'PowerBot') 
         {
             $greeted = $false
-            
+        
             foreach ($viewer in $Global:viewersGreeted)
             {
                 Write-Verbose -Message $viewer.Name
@@ -495,7 +462,7 @@ function Greet-StreamViewers
                     Write-Verbose -Message 'Not greeted'
                 }
             }
-            
+        
             if (!$greeted) 
             {
                 if ($Global:newViewers.ContainsKey($user)) 
@@ -508,7 +475,7 @@ function Greet-StreamViewers
                         Out-Stream -Message ($Greetings[$rand] -f $user)
 
                         $properties = @{
-                            'Name' = $user
+                            'Name'      = $user
                             'whenGreeted' = (Get-Date)
                         }
                         $Result = New-Object -TypeName psobject -Property $properties
@@ -525,8 +492,10 @@ function Greet-StreamViewers
         }
     }
 
-    foreach ($newViewer in $Global:newViewers) {
-        if ($newViewer.Keys -notin $users) {
+    foreach ($newViewer in $Global:newViewers) 
+    {
+        if ($newViewer.Keys -notin $users) 
+        {
             $Global:newViewers.Remove($newViewer.Keys)
         }
     }
@@ -535,14 +504,14 @@ function Greet-StreamViewers
 function Start-Raffle 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -556,14 +525,14 @@ function Start-Raffle
 function Send-PBHelp 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -583,14 +552,14 @@ function Send-PBHelp
 function Add-PBCommand 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -621,14 +590,14 @@ function Add-PBCommand
 function Check-PBCommand 
 {
     <#
-        .Synopsis
-        Short description
-        .DESCRIPTION
-        Long description
-        .EXAMPLE
-        Example of how to use this cmdlet
-        .EXAMPLE
-        Another example of how to use this cmdlet
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
     [Alias()]
@@ -734,26 +703,28 @@ function Start-PBLoop
             {
                 $fullLog = Import-Csv -Path $Global:ChatLog
                 $delay = (Get-Date).AddMinutes(-60)
-                
+            
                 $commandOutput = $Global:PBCommands.'!twitter'
                 $testString = $commandOutput.Replace(' https://twitter.com/WindosNZ','')
-                
+            
                 $commandResponses = $fullLog | Where-Object -FilterScript {
                     $_.Message -like "$testString*" -and $_.User -eq 'PowerBot'
                 }
-                
+            
                 foreach ($commandResponse in $commandResponses) 
                 {
                     $responseTime = Get-Date -Date $commandResponse.Time
                     if ($responseTime -gt $delay) 
                     {
                         $timeToGo = [math]::Round((New-TimeSpan -Start $delay -End $responseTime).TotalMinutes)
-                
-                        $objProperties = @{'auth_token' = 'YOUR_AUTH_TOKEN';
-                                           'value' = $timeToGo}
+            
+                        $objProperties = @{
+                            'auth_token' = 'YOUR_AUTH_TOKEN'
+                            'value'    = $timeToGo
+                        }
                         $obj = New-Object -TypeName PSCustomObject -Property $objProperties
-                        
-                        Post-JsonToDashboard -Object $obj -Widget 'twitterTimeOut'
+                
+                        Push-DashingJson -Object $obj -Widget 'twitterTimeOut'
                     }
                 }
                 Start-Sleep -Seconds 50
@@ -775,31 +746,43 @@ function Start-PBLoop
             Initialize-PowerBot
             Out-Stream -Message 'PowerBot: LiveViewers Online'
             $start = Get-Date
-            
+        
             $data = @()
-            
-            while ($true) {
-                $now = get-date
+        
+            while ($true) 
+            {
+                $now = Get-Date
                 $secondsPassed = (New-TimeSpan -Start $start -End $now).TotalSeconds
                 $x = $secondsPassed
-                $y = (Get-StreamViewers | where {$_ -ne 'Windos' -and $_ -ne 'PowerBot'} | Measure).Count
-                
-                $data += @{'x' = $x;
-                           'y' = $y}
-                
-                $displayData = @()
-                if ($data.Length -gt 240) {
-                    $displayData = $data[-240..-1]
-                } else {
-                    $displayData = $data
+                $y = (Get-StreamViewers |
+                    Where-Object -FilterScript {
+                        $_ -ne 'Windos' -and $_ -ne 'PowerBot'
+                    } |
+                Measure-Object).Count
+            
+                $data += @{
+                    'x' = $x
+                    'y' = $y
                 }
             
-                $objProperties = @{'auth_token' = 'YOUR_AUTH_TOKEN';
-                                   'points' = $displayData}
+                $displayData = @()
+                if ($data.Length -gt 240) 
+                {
+                    $displayData = $data[-240..-1]
+                }
+                else 
+                {
+                    $displayData = $data
+                }
+        
+                $objProperties = @{
+                    'auth_token' = 'YOUR_AUTH_TOKEN'
+                    'points'   = $displayData
+                }
                 $obj = New-Object -TypeName PSCustomObject -Property $objProperties
-                
-                Post-JsonToDashboard -Object $obj -Widget 'liveviewers'
-                
+            
+                Push-DashingJson -Object $obj -Widget 'liveviewers'
+            
                 Start-Sleep -Seconds 15
             }
         }
