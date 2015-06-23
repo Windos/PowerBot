@@ -3,11 +3,6 @@
 ## Main Bot Functions
 
 * Create function for installing phantomJS and Selenium (currently just lots of duplicated cmdlets.)
-* Reset greet delay if viewer leaves chat (i.e. if viewer leaves before 30 seconds, don't auto greet if they re-visit later unless they stay for delay)
-  * (this may be fixed, needs testing off stream)
-* Revisit dynamically adding commands, add to PBLoop.
-* Make added commands persistent.
-* Edit commands, remove commands.
 * Add comment based help
 * Track 'active' viewers (people who have typed in chat between time x and y)
 * Implement raffle system.
@@ -21,6 +16,9 @@
 * Control OBS/Foobar2000 through bot?
 * Stop-Stream: output to chat about following and about sending in requests, and then stop the stream via OBS (hotkeys?).
 * Star-Stream: start five minute countdown and start the stream via OBS (hotkeys?)
+* Multiple jobs using one PhantomJS driver?
+* Reduce the timeout for !help to 1 minute
+* Add timeout left to non-help command in !help output
 
 ## Dashboard
 
