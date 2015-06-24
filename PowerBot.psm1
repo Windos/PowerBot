@@ -13,7 +13,6 @@ function Push-DashingJson
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         # Parameter help
         [Parameter(Mandatory = $true,
@@ -54,7 +53,6 @@ function Export-PBCommands
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         # Parameter help
         [Parameter(Mandatory = $false,
@@ -88,7 +86,6 @@ function Import-PBCommands
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         # Parameter help
         [Parameter(Mandatory = $false,
@@ -99,6 +96,54 @@ function Import-PBCommands
     $global:PBCommands = @{}
     $object = Import-Csv $Path | foreach {
         $global:PBCommands.Add($_.Command, $_.Message)
+    }
+}
+
+function Mute-PowerBot
+{
+    <#
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
+    #>
+    [CmdletBinding()]
+    Param ()
+    
+    if (!$Global:isMuted)
+    {
+        $Global:isMuted = $true
+        Write-Verbose -Message 'PowerBot has been muted'
+    } else {
+        Write-Verbose -Message 'PowerBot was already muted'
+    }
+}
+
+function Unmute-PowerBot
+{
+    <#
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
+    #>
+    [CmdletBinding()]
+    Param ()
+    
+    if ($Global:isMuted)
+    {
+        $Global:isMuted = $false
+        Write-Verbose -Message 'PowerBot has been unmuted'
+    } else {
+        Write-Verbose -Message 'PowerBot was not already muted'
     }
 }
 
@@ -115,7 +160,6 @@ function Initialize-PowerBot
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         [string] $powerBotPath = (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path)
     )
@@ -242,6 +286,7 @@ function Initialize-PowerBot
     $Global:ChatLog = Join-Path -Path $powerBotPath -ChildPath 'chatlog.csv'
     $Global:CommandsCsv = Join-Path -Path $powerBotPath -ChildPath 'commands.csv'
     $Global:MemLog = @()
+    $Global:isMuted = $false
 
     if (!(Test-Path -Path $Global:CommandsCsv))
     {
@@ -306,7 +351,6 @@ function Out-Stream
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         # Param1 help description
         [Parameter(Mandatory = $true,
@@ -321,9 +365,13 @@ function Out-Stream
     Process {
         foreach ($output in $Message) 
         {
-            $Global:messageTextArea.SendKeys($output)
-            $Global:chatSendButton.Click()
+            if (!$Global:isMuted)
+            {
+                $Global:messageTextArea.SendKeys($output)
+                $Global:chatSendButton.Click()
+            }
         }
+        Read-Stream
     }
 
     End {}
@@ -342,7 +390,6 @@ function Read-Stream
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         [switch] $all
     )
@@ -404,7 +451,6 @@ function Log-Chat
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param (
         [psobject] $chatMessage
     )
@@ -431,7 +477,6 @@ function Get-StreamViewers
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $user = $null
@@ -456,7 +501,6 @@ function Greet-StreamViewers
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $user = $null
@@ -548,7 +592,6 @@ function Start-Raffle
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $userMessages = Read-Stream
@@ -569,15 +612,23 @@ function Send-PBHelp
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $userMessages = Read-Stream -all
     $outHelp = 'Available Commands: '
     $commands = $Global:PBCommands.GetEnumerator()
+
+
     foreach ($command in $commands) 
     {
-        $outHelp += "$($command.Name), "
+        $lockoutTime = (Get-RemainingLockoutTime -Command ($command.Name))
+        if ($lockoutTime -eq 0 -or $lockoutTime -eq $null)
+        {
+            $outHelp += "$($command.Name), "
+        } else {
+            $outHelp += "$($command.Name) ($lockoutTime), "
+        }
+        
     }
     $outHelp = $outHelp.Trim().TrimEnd(',')
     $outHelp | Out-Stream
@@ -596,7 +647,6 @@ function Add-PBCommand
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $fullLog = Import-Csv -Path $Global:ChatLog
@@ -653,7 +703,6 @@ function Edit-PBCommand
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $fullLog = Import-Csv -Path $Global:ChatLog
@@ -711,7 +760,6 @@ function Remove-PBCommand
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $fullLog = Import-Csv -Path $Global:ChatLog
@@ -767,12 +815,11 @@ function Check-PBCommand
             Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    [Alias()]
     Param ()
 
     $fullLog = Import-Csv -Path $Global:ChatLog
-    $delay = (Get-Date).AddMinutes(-60)
-    $helpDelay = (Get-Date).AddMinutes(-30)
+    $delay = (Get-Date).AddMinutes(-30)
+    $helpDelay = (Get-Date).AddMinutes(-1)
     $active = (Get-Date).AddSeconds(-15)
 
     Import-PBCommands
@@ -835,6 +882,55 @@ function Check-PBCommand
                 }
             }
         }
+    }
+}
+
+function Get-RemainingLockoutTime
+{
+    <#
+            .Synopsis
+            Short description
+            .DESCRIPTION
+            Long description
+            .EXAMPLE
+            Example of how to use this cmdlet
+            .EXAMPLE
+            Another example of how to use this cmdlet
+    #>
+    [CmdletBinding()]
+    Param (
+        # Parameter help
+        [Parameter(Mandatory = $true,
+                   Position = 0)]
+        [string] $Command
+    )
+    
+    if ($Command -like '!*') {
+        $Command = $Command.Replace('!', '')
+    }
+
+    if ($Command -ne 'help' -and $Global:PBCommands.ContainsKey("!$Command"))
+    {
+        $timeToGo = 0
+        $fullLog = Import-Csv -Path $Global:ChatLog
+        $delay = (Get-Date).AddMinutes(-30)
+        
+        $commandOutput = $Global:PBCommands."!$Command"
+        $testString = $commandOutput.Replace(' https://twitter.com/WindosNZ','')
+        
+        $commandResponses = $fullLog | Where-Object -FilterScript {
+            $_.Message -like "$testString*" -and $_.User -eq 'PowerBot'
+        }
+        
+        foreach ($commandResponse in $commandResponses) 
+        {
+            $responseTime = Get-Date -Date $commandResponse.Time
+            if ($responseTime -gt $delay) 
+            {
+                $timeToGo = [math]::Round((New-TimeSpan -Start $delay -End $responseTime).TotalMinutes)
+            }
+        }
+        $timeToGo
     }
 }
 
