@@ -63,8 +63,8 @@
     {
         $Cred = Get-Credential
 
-        $UserField.SendKeys($Cred.UserName)
-        $PassField.SendKeys($Cred.GetNetworkCredential())
+        $UserField.SendKeys($Cred.Username)
+        $PassField.SendKeys($Cred.GetNetworkCredential().Password)
     }
     else
     {
@@ -107,11 +107,11 @@
     $Global:isMuted = $false
     $Global:ViewersGreeted = @()
     $Global:NewViewers = @{}
-    $Global:LastCmdResponse = @{}
-    $Global:PBCommands = @{
-        '!help' = ''
-        '!twitter' = 'Follow Windos on Twitter: https://twitter.com/WindosNZ'
-        '!microsoft' = 'Windos doesn''t work for Microsoft'
-    }
+    $Global:PBCommands = @()
+
     #endregion
+
+    New-PBCommand -Command '!help' -Message ''
+    New-PBCommand -Command '!twitter' -Message 'Windos doesn''t work for Microsoft'
+    New-PBCommand -Command '!microsoft' -Message 'Follow Windos on Twitter: https://twitter.com/WindosNZ'
 }

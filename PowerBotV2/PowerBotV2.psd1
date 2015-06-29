@@ -7,7 +7,7 @@
 #
 # Author   : KING\adminjk
 #
-# Generated: 2015-06-27
+# Generated: 2015-06-29
 #
 
 @{
@@ -19,7 +19,7 @@ ModuleToProcess = 'loader.psm1'
 ModuleVersion = '1.0'
 
 # Unique Module ID
-GUID = '461ac2ea-d65b-423e-a255-200d005489d5'
+GUID = 'f85af014-1fc8-42a6-8264-eeb10087bfad'
 
 # Module Author
 Author = 'KING\adminjk'

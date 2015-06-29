@@ -15,9 +15,9 @@ function Out-Stream
     Param (
         # Param1 help description
         [Parameter(Mandatory = $true,
-                ValueFromPipeline = $true,
-                ValueFromPipelineByPropertyName = $true,
-        Position = 0)]
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            Position = 0)]
         [string[]] $Message
     )
 
