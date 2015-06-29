@@ -33,18 +33,21 @@ function New-PBCommand
         $Command = "!$Command"
     }
 
+    $existingCommands = @()
     foreach ($existingCommand in $Global:PBCommands)
     {
-        if ($Command -ne $existingCommand.Command)
-        {
-            $Properties = @{
-                'Command' = $Command
-                'Message' = $Message
-                'Admin' = $Admin
-            }
+        $existingCommands += $existingCommand.Command
+    }
 
-            $Result = New-Object -TypeName PSCustomObject -Property $Properties
-            $Global:PBCommands += $Result
+    if ($Command -notin $existingCommands)
+    {
+        $Properties = @{
+            'Command' = $Command
+            'Message' = $Message
+            'Admin' = $Admin
         }
+
+        $Result = New-Object -TypeName PSCustomObject -Property $Properties
+        $Global:PBCommands += $Result
     }
 }

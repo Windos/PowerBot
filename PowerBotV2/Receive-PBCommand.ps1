@@ -49,20 +49,28 @@
         if ($CmdRelevant[$CmdIndex].Message -eq '!help')
         {
             $CmdOutput = Send-PBHelp -ReturnOnly
+            $TestOutput = ($CmdOutput.Split(':'))[0]
         }
         else
         {
             $Output = $Global:PBCommands | Where-Object -FilterScript {
                 $_.Command -eq $($CmdRelevant[$CmdIndex].Message)
             }
+
             $CmdOutput = $Output.Message
+            $TestOutput = $CmdOutput
+
+            if ($CmdRelevant[$CmdIndex].Message -eq '!twitter')
+            {
+                $TestOutput = ($CmdOutput.Split(':'))[0]
+            }
         }
 
         $ResponseFound = $false
 
         Do
         {
-            if ($CmdRelevant[$ResponseIndex].Message -eq $CmdOutput)
+            if ($CmdRelevant[$ResponseIndex].Message -like "$TestOutput*")
             {
                 $ResponseFound = $true
             }

@@ -112,6 +112,6 @@
     #endregion
 
     New-PBCommand -Command '!help' -Message ''
-    New-PBCommand -Command '!twitter' -Message 'Windos doesn''t work for Microsoft'
-    New-PBCommand -Command '!microsoft' -Message 'Follow Windos on Twitter: https://twitter.com/WindosNZ'
+    New-PBCommand -Command '!twitter' -Message 'Follow Windos on Twitter: https://twitter.com/WindosNZ'
+    New-PBCommand -Command '!microsoft' -Message 'Windos doesn''t work for Microsoft'
 }

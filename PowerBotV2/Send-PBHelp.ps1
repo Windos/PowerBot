@@ -16,12 +16,10 @@
     )
 
     $Output = 'Available Commands: '
-    $Commands = $Global:PBCommands.GetEnumerator()
 
-
-    foreach ($Command in $Commands) 
+    foreach ($Command in $Global:PBCommands) 
     {
-        $Output += "$($Command.Name), "
+        $Output += "$($Command.Command), "
     }
     $Output = $Output.Trim().TrimEnd(',')
     
