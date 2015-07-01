@@ -1,5 +1,5 @@
-﻿#requires -Version 2
-function Start-PBOutput
+﻿#requires -Version 2 -Modules PowerBot
+function Stop-PBOutput
 {
     <#
             .Synopsis
@@ -13,14 +13,14 @@ function Start-PBOutput
     #>
     [CmdletBinding()]
     Param ()
-    
-    if ($Global:isMuted)
+
+    if (!$Global:isMuted)
     {
-        $Global:isMuted = $false
-        Write-Verbose -Message 'PowerBot has been unmuted'
+        $Global:isMuted = $true
+        Write-Verbose -Message 'PowerBot has been muted'
     }
     else
     {
-        Write-Verbose -Message 'PowerBot was not already muted'
+        Write-Verbose -Message 'PowerBot was already muted'
     }
 }

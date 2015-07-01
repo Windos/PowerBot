@@ -1,4 +1,5 @@
-﻿function Initialize-PowerBot
+﻿#requires -Version 3 -Modules PowerBot
+function Initialize-PowerBot
 {
     <#
             .SYNOPSIS
@@ -16,7 +17,7 @@
     #>
     [CmdletBinding()]
     Param (
-        [string] $Path = (Split-Path -Path (Get-Module -Name 'PowerBotV2' -ListAvailable).Path),
+        [string] $Path = (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path),
         [string] $Streamer = 'windos',
         [string] $User = '',
         [string] $Pass = ''
@@ -43,23 +44,23 @@
 
     $PhatomJsService = [OpenQA.Selenium.PhantomJS.PhantomJSDriverService]::CreateDefaultService((Join-Path -Path $Path -ChildPath '\PhantomJS\phantomjs-2.0.0-windows\bin\'))
     $PhatomJsService.HideCommandPromptWindow = $true
-    
+
     $Global:PhantomJsDriver = New-Object -TypeName OpenQA.Selenium.PhantomJS.PhantomJSDriver -ArgumentList @(,$PhatomJsService)
     $Global:PhantomJsDriver.Navigate().GoToUrl('https://www.livecoding.tv/accounts/login/')
 
     $UserField = $Global:PhantomJsDriver.FindElementById('id_login')
     $PassField = $Global:PhantomJsDriver.FindElementById('id_password')
     $Buttons = $Global:PhantomJsDriver.FindElementsByTagName('button')
-    
-    foreach ($Button in $Buttons) 
+
+    foreach ($Button in $Buttons)
     {
-        if ($Button.Text -eq 'Login') 
+        if ($Button.Text -eq 'Login')
         {
             $LoginButton = $Button
         }
     }
 
-    if ($User -notlike '*-BEGIN CMS-*') 
+    if ($User -notlike '*-BEGIN CMS-*')
     {
         $Cred = Get-Credential
 
@@ -73,27 +74,27 @@
     }
 
     $LoginButton.Click()
-    
+
     $Global:PhantomJsDriver.Navigate().GoToUrl("https://www.livecoding.tv/chat/$Streamer/")
 
     $StopLoop = $false
     [int]$Retrycount = 0
-     
-    do 
+
+    do
     {
-        try 
+        try
         {
             $Global:messageTextArea = $Global:PhantomJsDriver.FindElementById('message-textarea')
             $Global:chatSendButton = $Global:PhantomJsDriver.FindElementByClassName('submit')
             $StopLoop = $true
         }
-        catch 
+        catch
         {
             if ($Retrycount -gt 5)
             {
                 $StopLoop = $true
             }
-            else 
+            else
             {
                 Start-Sleep -Seconds 10
                 $Retrycount = $Retrycount + 1
@@ -103,15 +104,25 @@
     While ($StopLoop -eq $false)
 
     #region GlobalVariable
-
     $Global:isMuted = $false
     $Global:ViewersGreeted = @()
     $Global:NewViewers = @{}
     $Global:PBCommands = @()
-
     #endregion
 
-    New-PBCommand -Command '!help' -Message ''
-    New-PBCommand -Command '!twitter' -Message 'Follow Windos on Twitter: https://twitter.com/WindosNZ'
-    New-PBCommand -Command '!microsoft' -Message 'Windos doesn''t work for Microsoft'
+    #region LoadPersistentData
+    $PersistentPath = Join-Path -Path $Path -ChildPath '\PersistentData\'
+
+    if (Test-Path -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv'))
+    {
+        $Global:PBCommands = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv')
+    }
+    else
+    {
+        New-PBCommand -Command '!help' -Message ''
+        New-PBCommand -Command '!add' -Message '' -Admin
+        New-PBCommand -Command '!edit' -Message '' -Admin
+        New-PBCommand -Command '!remove' -Message '' -Admin
+    }
+    #endregion
 }

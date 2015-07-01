@@ -1,4 +1,5 @@
-﻿function Read-Stream 
+﻿#requires -Version 2 -Modules PowerBot
+function Read-Stream
 {
     <#
             .Synopsis
@@ -16,7 +17,7 @@
     $ChatMessages = $Global:PhantomJsDriver.FindElementsByClassName('lctv-premium')
 
     $Log = @()
-    foreach ($ChatMessage in $ChatMessages) 
+    foreach ($ChatMessage in $ChatMessages)
     {
         $Parts = ($ChatMessage.GetAttribute('innerHTML')).Split('>')
         $Name = $Parts[1].Replace('</a', '')
@@ -24,7 +25,7 @@
         $Message = $Parts[2]
 
         $Properties = @{
-            'Name' = $Name
+            'Name'  = $Name
             'Message' = $Message
         }
         $Result = New-Object -TypeName PSCustomObject -Property $Properties

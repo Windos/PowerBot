@@ -1,4 +1,5 @@
-﻿function Write-ViewerGreeting
+﻿#requires -Version 2 -Modules PowerBot
+function Write-ViewerGreeting
 {
     <#
             .Synopsis
@@ -17,24 +18,24 @@
     $TestTime = (Get-Date).AddSeconds(-20)
     $RegreetTime = (Get-Date).AddHours(-12)
 
-    $Greetings = @('Welcome {0}!', 
-        'Hey {0}', 
-        'How''s it going, {0}?', 
-        'Hey {0}, how''s it going?', 
-        'Good to see you, {0}', 
-        'Hi {0}', 
+    $Greetings = @('Welcome {0}!',
+        'Hey {0}',
+        'How''s it going, {0}?',
+        'Hey {0}, how''s it going?',
+        'Good to see you, {0}',
+        'Hi {0}',
         'Howdy {0}'
     )
 
-    foreach ($User in $Users) 
+    foreach ($User in $Users)
     {
-        if ($User -ne 'Windos' -and $User -ne 'PowerBot') 
+        if ($User -ne 'Windos' -and $User -ne 'PowerBot')
         {
             $Greeted = $false
-        
+
             foreach ($Viewer in $Global:viewersGreeted)
             {
-                if ($User -eq $Viewer.Name) 
+                if ($User -eq $Viewer.Name)
                 {
                     if ($Viewer.LastGreeted -ge $RegreetTime)
                     {
@@ -42,13 +43,13 @@
                     }
                 }
             }
-        
-            if (!$Greeted) 
+
+            if (!$Greeted)
             {
-                if ($Global:NewViewers.ContainsKey($User)) 
+                if ($Global:NewViewers.ContainsKey($User))
                 {
                     $UserTime = $Global:NewViewers.$User
-                    if ($UserTime -le $TestTime) 
+                    if ($UserTime -le $TestTime)
                     {
                         $Rand = $null
                         $Rand = Get-Random -Minimum 0 -Maximum ($Greetings.Length - 1)
@@ -71,9 +72,9 @@
         }
     }
 
-    foreach ($NewViewer in $Global:NewViewers) 
+    foreach ($NewViewer in $Global:NewViewers)
     {
-        if ($NewViewer.Keys -notin $Users) 
+        if ($NewViewer.Keys -notin $Users)
         {
             $Global:NewViewers.Remove($NewViewer.Keys)
         }

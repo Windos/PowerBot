@@ -17,6 +17,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Archives (ISESteroids File Versioning)
+*.zip
+
 # =========================
 # Operating System Files
 # =========================

@@ -1,5 +1,5 @@
-﻿#requires -Version 2
-function Stop-PBOutput
+﻿#requires -Version 2 -Modules PowerBot
+function Get-StreamViewers
 {
     <#
             .Synopsis
@@ -13,14 +13,12 @@ function Stop-PBOutput
     #>
     [CmdletBinding()]
     Param ()
-    
-    if (!$Global:isMuted)
+
+    $User = $null
+    $Users = $Global:PhantomJsDriver.FindElementsByClassName('user')
+
+    foreach ($User in $Users)
     {
-        $Global:isMuted = $true
-        Write-Verbose -Message 'PowerBot has been muted'
-    }
-    else
-    {
-        Write-Verbose -Message 'PowerBot was already muted'
+        $User.GetAttribute('innerText').trimEnd('▾')
     }
 }

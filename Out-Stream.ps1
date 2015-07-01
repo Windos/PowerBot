@@ -1,5 +1,5 @@
-﻿#requires -Version 2
-function Out-Stream 
+﻿#requires -Version 2 -Modules PowerBot
+function Out-Stream
 {
     <#
             .Synopsis
@@ -15,16 +15,16 @@ function Out-Stream
     Param (
         # Param1 help description
         [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 0)]
+                ValueFromPipeline = $true,
+                ValueFromPipelineByPropertyName = $true,
+        Position = 0)]
         [string[]] $Message
     )
 
     Begin {}
 
     Process {
-        foreach ($output in $Message) 
+        foreach ($output in $Message)
         {
             if (!$Global:isMuted)
             {
