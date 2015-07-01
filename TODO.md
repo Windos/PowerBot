@@ -33,6 +33,7 @@
 - [ ] Start-Stream: start five minute countdown and start the stream via OBS (hotkeys?)
 - [x] Reduce the timeout for !help to 1 minute
 - [x] Add timeout left to non-help command in !help output
+- [ ] Regreet viewers that leave stream and return after x minutes. "Welcome back, $user"
 
 ## Dashboard
 
