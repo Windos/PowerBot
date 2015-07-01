@@ -53,6 +53,7 @@ function Receive-PBCommand
             }
             if  ($CommandObject.Admin -eq $false -or ($CommandObject.Admin -and $CmdRelevant[$CmdIndex].Name -eq 'Windos'))
             {
+                $TestOutputAlt = ''
                 $ResponseIndex = $CmdIndex
 
                 if ($CmdRelevant[$CmdIndex].Message -eq '!help')
@@ -75,6 +76,14 @@ function Receive-PBCommand
                         $TestOutput = 'Added '
                     }
                 }
+                elseif ($CmdRelevant[$CmdIndex].Message -like '!edit*')
+                {
+                    if ($CmdRelevant[$CmdIndex].Name -eq 'Windos')
+                    {
+                        $TestOutput = 'Edited '
+                        $TestOutputAlt = 'Couldn''t edit '
+                    }
+                }
                 else
                 {
                     $CmdOutput = $CommandObject.Message
@@ -94,6 +103,10 @@ function Receive-PBCommand
                     {
                         $ResponseFound = $true
                     }
+                    elseif ($CmdRelevant[$ResponseIndex].Message -like "$TestOutputAlt*" -and $TestOutputAlt -ne '')
+                    {
+                        $ResponseFound = $true
+                    }
                     else
                     {
                         $ResponseIndex--
@@ -106,6 +119,10 @@ function Receive-PBCommand
                     if ($CmdRelevant[$CmdIndex].Message -like '!add*')
                     {
                         Add-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
+                    }
+                    elseif ($CmdRelevant[$CmdIndex].Message -like '!edit*')
+                    {
+                        Edit-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
                     }
                     else
                     {

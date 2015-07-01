@@ -19,8 +19,27 @@ function Initialize-PowerBot
     Param (
         [string] $Path = (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path),
         [string] $Streamer = 'windos',
-        [string] $User = '',
-        [string] $Pass = ''
+        [string] $User = '-----BEGIN CMS-----
+MIIBtwYJKoZIhvcNAQcDoIIBqDCCAaQCAQAxggFPMIIBSwIBADAzMB8xHTAbBgNVBAMMFGFkbWlu
+amtAa2luZy5nZWVrLm56AhBVcxScnOIMqESt8yVblEh2MA0GCSqGSIb3DQEBBzAABIIBAB0vcb/y
+rAeaQE+R7HLmTrliRB2YRPjtE8yFpuSi3I4pukILbIXm9VSsfgWHwX8F+gfWywIWhjDgkUOFiBIx
+ANyJ9Y2z5mjHDj31PfB4m+2eCDJKNfSbpbhDJtb0NSYYPZeQEn7QTOi6699Y++DZjbnKI/gSheu+
+OgpCGT+gud1j4ceS9OnTeCpOYqRsX2eyGCV+4zevhM2Li14VMX4ov/MXrRI5A0K4cnO0ZK6aab6E
+mY6TYFdtOcbJZ0XRL/Arqq5EHTIAprWvGXA+nwvAEMRbrRAu0SY5bBACZZOb/mIAv93qjv5JVIbo
++oBF9baCkxZY1ESN+iF6JZ4+wrZ7LUUwTAYJKoZIhvcNAQcBMB0GCWCGSAFlAwQBKgQQnvBTeGa4
+JbsL2ATWVOWH6YAg23j6ZPF+poLAwxYxwv2aYGQMg+9gn6QsVwFD31DE8fA=
+-----END CMS-----',
+        [string] $Pass = '-----BEGIN CMS-----
+MIIB5wYJKoZIhvcNAQcDoIIB2DCCAdQCAQAxggFPMIIBSwIBADAzMB8xHTAbBgNVBAMMFGFkbWlu
+amtAa2luZy5nZWVrLm56AhBVcxScnOIMqESt8yVblEh2MA0GCSqGSIb3DQEBBzAABIIBAIsBm3TP
+xFYp/EpC+bFGjOngshX7amJBzFZm9BcJEtdgrV05HQfvSLQ8ohGQHX/msTW9NYu0YWX/2qOHdY2o
+jDLl6wBAYHskIh4d65MPSDGBQz375WSSMYg9Q406uznJj4TRL58vGZSrrIm4vFMDsuTdd46HuTle
+D301nYjaLSpu4nV53niIkWMhU5higgyf+bOsAP/NU4Z0ywvtwi9G6/RiOEfgIZWpQt4Bayt9eMTT
+y2o7EtX2CZ4n74TUkfbuxELcfAHZryRsb1+9OireAFILoK0BrSvzpyJkKhqSLzPAwn9mFa0603gr
+zXMhSLN8/1ffLv2wCAngIB/p3x6P8OgwfAYJKoZIhvcNAQcBMB0GCWCGSAFlAwQBKgQQb0sGVD3b
+jZVbsuML9sxfaIBQqhpkkfpcgP597c1Wz6+RrktXgRGm8JaE0hNEaxsF5Gf21vh0StxMIGjQsJfe
+6G6mxm/kqjjgcFBfemfRGrxQdrnCvpnHIqMdY2CFxfN7Zt0=
+-----END CMS-----'
     )
 
     $null = Start-Job -Name 'SeleniumInstall' -ScriptBlock {
@@ -123,6 +142,19 @@ function Initialize-PowerBot
         New-PBCommand -Command '!add' -Message '' -Admin
         New-PBCommand -Command '!edit' -Message '' -Admin
         New-PBCommand -Command '!remove' -Message '' -Admin
+    }
+
+    if (Test-Path -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv'))
+    {
+        $Global:ViewersGreeted = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
+    }
+    else
+    {
+        $Properties = @{
+            'Name' = $Streamer
+            'LastGreeted' = (Get-Date)
+        }
+        New-Object -TypeName PSCustomObject -Property $Properties | Export-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
     }
     #endregion
 }

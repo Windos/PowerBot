@@ -62,6 +62,9 @@ function Write-ViewerGreeting
                         $Result = New-Object -TypeName PSCustomObject -Property $Properties
                         $Global:viewersGreeted += $Result
                         $Global:NewViewers.Remove($User)
+
+                        $PersistentPath = Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\'
+                        $Global:viewersGreeted | Export-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
                     }
                 }
                 else
