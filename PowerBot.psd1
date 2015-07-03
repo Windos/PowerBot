@@ -16,7 +16,7 @@
 ModuleToProcess = 'loader.psm1'
 
 # Version Number
-ModuleVersion = '1.0'
+ModuleVersion = '0.2'
 
 # Unique Module ID
 GUID = '7b5c68d0-f763-4355-b6c3-2d8b6f864ae4'
