@@ -1,5 +1,4 @@
-﻿#requires -Version 5 -Modules PowerBot
-function Install-ReqSoftware
+﻿function Install-ReqSoftware
 {
     <#
             .SYNOPSIS

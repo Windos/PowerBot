@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Stop-PBOutput
+﻿function Stop-PBOutput
 {
     <#
             .Synopsis

@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Start-PBOutput
+﻿function Start-PBOutput
 {
     <#
             .Synopsis

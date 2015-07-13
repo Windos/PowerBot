@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Get-StreamViewers
+﻿function Get-StreamViewers
 {
     <#
             .Synopsis

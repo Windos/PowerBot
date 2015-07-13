@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Receive-PBCommand
+﻿function Receive-PBCommand
 {
     <#
             .Synopsis
@@ -84,6 +83,14 @@ function Receive-PBCommand
                         $TestOutputAlt = 'Couldn''t edit '
                     }
                 }
+                elseif ($CmdRelevant[$CmdIndex].Message -like '!remove*')
+                {
+                    if ($CmdRelevant[$CmdIndex].Name -eq 'Windos')
+                    {
+                        $TestOutput = 'Removed '
+                        $TestOutputAlt = 'Couldn''t remove '
+                    }
+                }
                 else
                 {
                     $CmdOutput = $CommandObject.Message
@@ -123,6 +130,10 @@ function Receive-PBCommand
                     elseif ($CmdRelevant[$CmdIndex].Message -like '!edit*')
                     {
                         Edit-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
+                    }
+                    elseif ($CmdRelevant[$CmdIndex].Message -like '!remove*')
+                    {
+                        Remove-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
                     }
                     else
                     {

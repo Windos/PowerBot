@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Out-Stream
+﻿function Out-Stream
 {
     <#
             .Synopsis

@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Add-PBCommand
+﻿function Add-PBCommand
 {
     <#
             .Synopsis

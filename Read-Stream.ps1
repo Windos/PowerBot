@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Read-Stream
+﻿function Read-Stream
 {
     <#
             .Synopsis

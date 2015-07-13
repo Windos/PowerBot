@@ -9,6 +9,7 @@
 . $PSScriptRoot\Out-Stream.ps1
 . $PSScriptRoot\Read-Stream.ps1
 . $PSScriptRoot\Receive-PBCommand.ps1
+. $PSScriptRoot\Remove-PBCommand
 . $PSScriptRoot\Send-PBHelp.ps1
 . $PSScriptRoot\Start-PBOutput.ps1
 . $PSScriptRoot\Stop-PBOutput.ps1

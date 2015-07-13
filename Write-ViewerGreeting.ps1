@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Write-ViewerGreeting
+﻿function Write-ViewerGreeting
 {
     <#
             .Synopsis

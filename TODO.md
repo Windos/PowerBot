@@ -1,14 +1,5 @@
 # TODO
 
-## Rewrite chat logging and command responses
-
-- [x] Stop relying on csv file (possibly locking file on disk)
-- [x] Grab chat as it exists on site, store in array, inverse it and look for 'latest' command
-- [x] Look from last command to end of array, check for command responses.
-- [x] If not response before end of array, issue response.
-- [ ] However, need to limit how often. Hash table with key=commandname value=datetime(when response issued.)
-- [x] Remove Log-Chat cmdlet
-
 ## Main Bot Functions
 
 - [ ] Ensure no doubled output on lag (maybe output stream?)
@@ -34,6 +25,10 @@
 - [x] Reduce the timeout for !help to 1 minute
 - [x] Add timeout left to non-help command in !help output
 - [ ] Regreet viewers that leave stream and return after x minutes. "Welcome back, $user"
+- [ ] Mute users that issue more than 4 commands in a minute.
+  - [ ] Initial mute for 1 minute
+  - [ ] Aditional mutes double (2 minutes, 4 minutes, 8 minutes)
+  - [ ] If still spamming after 8 minute ban, advise streamer to ban (command) spammer.
 
 ## Dashboard
 

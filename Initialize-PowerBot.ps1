@@ -1,5 +1,4 @@
-﻿#requires -Version 3 -Modules PowerBot
-function Initialize-PowerBot
+﻿function Initialize-PowerBot
 {
     <#
             .SYNOPSIS

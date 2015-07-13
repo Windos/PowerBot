@@ -1,5 +1,4 @@
-﻿#requires -Version 2 -Modules PowerBot
-function Send-PBHelp
+﻿function Send-PBHelp
 {
     <#
             .Synopsis
