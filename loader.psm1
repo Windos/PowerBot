@@ -5,6 +5,7 @@
 . $PSScriptRoot\Get-StreamViewers.ps1
 . $PSScriptRoot\Initialize-PowerBot.ps1
 . $PSScriptRoot\Install-ReqSoftware.ps1
+. $PSScriptRoot\New-FollowerToast.ps1
 . $PSScriptRoot\New-PBCommand.ps1
 . $PSScriptRoot\Out-Stream.ps1
 . $PSScriptRoot\Read-Stream.ps1
