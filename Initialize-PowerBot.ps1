@@ -23,7 +23,7 @@
     )
 
     $null = Start-Job -Name 'SeleniumInstall' -ScriptBlock {
-        Install-ReqSoftware -Product 'Selenium' -Uri 'http://selenium-release.storage.googleapis.com/2.45/selenium-dotnet-2.45.0.zip'
+        Install-ReqSoftware -Product 'Selenium' -Uri 'http://selenium-release.storage.googleapis.com/2.47/selenium-dotnet-2.47.0.zip'
     }
 
     $null = Start-Job -Name 'PhantomJsInstall' -ScriptBlock {

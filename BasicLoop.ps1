@@ -1,4 +1,4 @@
-﻿$Counter = 10
+﻿$Counter = 0
 while ($true)
 {
     Write-ViewerGreeting

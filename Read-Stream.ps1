@@ -19,11 +19,13 @@
     foreach ($ChatMessage in $ChatMessages)
     {
         $Parts = ($ChatMessage.GetAttribute('innerHTML')).Split('>')
-        $Name = $Parts[1].Replace('</a', '')
-
-        $Message = $Parts[2]
+        
+        $Timestamp = Get-Date $Parts[2].Replace('</small', '')
+        $Name = $Parts[3].Replace('</a', '')
+        $Message = $Parts[4]
 
         $Properties = @{
+            'Timestamp' = $Timestamp
             'Name'  = $Name
             'Message' = $Message
         }

@@ -12,7 +12,7 @@
 - [ ] Track 'active' viewers (people who have typed in chat between time x and y)
 - [ ] Implement raffle system.
 - [ ] Polls/votes (maybe leverage new lc.tv facility)
-- [ ] New follower notifications (this and lc.tv poll facility will require bot to log in to site as myself rather than its own account.)
+- [X] New follower notifications (this and lc.tv poll facility will require bot to log in to site as myself rather than its own account.)
 - [ ] Limit some commands to followers only?
 - [ ] Song requests?
 - [ ] Creating countdown (progress bars) from chat command
