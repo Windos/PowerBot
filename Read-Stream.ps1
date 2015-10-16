@@ -16,11 +16,27 @@
     $ChatMessages = $Global:PhantomJsDriver.FindElementsByClassName('lctv-premium')
 
     $Log = @()
+
+    $LastTime = '0:00'
+    $Seconds = 0
     foreach ($ChatMessage in $ChatMessages)
     {
         $Parts = ($ChatMessage.GetAttribute('innerHTML')).Split('>')
         
-        $Timestamp = Get-Date $Parts[2].Replace('</small', '')
+        $Time = $Parts[2].Replace('</small', '')
+
+        if ($Time -eq $LastTime)
+        {
+            $Seconds++
+            $Time = $Time + ':' + $Seconds
+        } # Find a better way to do this, could cause issues with more than 60 messages a second
+        else
+        {
+            $LastTime = $Time
+            $Seconds = 0
+        }
+
+        $Timestamp = Get-Date $Time
         $Name = $Parts[3].Replace('</a', '')
         $Message = $Parts[4]
 
