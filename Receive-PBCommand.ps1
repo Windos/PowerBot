@@ -16,129 +16,54 @@
     $FullLog = Read-Stream
 
     $CmdRelevant = $FullLog | Where-Object -FilterScript {
-        $_.Message -like '!*' -or $_.Name -eq 'PowerBot'
-    }
+        $_.Message -like '!*' -and $_.Name -ne 'PowerBot'
+    } | Sort-Object -Property 'Timestamp' -Descending
+
+    $CmdResponses = $FullLog | Where-Object -FilterScript {
+        $_.Name -eq 'PowerBot'
+    } | Sort-Object -Property 'Timestamp' -Descending
 
     if ($CmdRelevant)
     {
-        [array]::Reverse($CmdRelevant)
-
-        $CmdIndex = 0
-        $CmdFound = $false
-
-        $ExistingCommands = @()
-        foreach ($existingCommand in $Global:PBCommands)
-        {
-            $ExistingCommands += $existingCommand.Command
-        }
-
-        While (!$CmdFound -and $CmdIndex -ne ($CmdRelevant | Measure-Object).Count)
-        {
-            $RawCommand = ($CmdRelevant[$CmdIndex].Message.Split(' '))[0]
-            if ($RawCommand -in $ExistingCommands)
-            {
-                $CmdFound = $true
-            }
-            else
-            {
-                $CmdIndex++
-            }
-        }
-
-        if ($CmdFound)
+        if ($CmdResponses[0].Timestamp -lt $CmdRelevant[0].Timestamp)
         {
             $CommandObject = $Global:PBCommands | Where-Object -FilterScript {
                 $_.Command -eq $RawCommand
             }
-            if  ($CommandObject.Admin -eq $false -or ($CommandObject.Admin -and $CmdRelevant[$CmdIndex].Name -eq 'Windos'))
-            {
-                $TestOutputAlt = ''
-                $ResponseIndex = $CmdIndex
 
-                if ($CmdRelevant[$CmdIndex].Message -eq '!help')
+            if  ($CommandObject.Admin -eq $false -or ($CommandObject.Admin -and $CmdRelevant[0].Name -eq 'Windos'))
+            {
+                if ($CmdRelevant[0].Message -eq '!help')
                 {
-                    if ($CmdRelevant[$CmdIndex].Name -eq 'Windos')
+                    if ($CmdRelevant[0].Name -eq 'Windos')
                     {
                         $CmdOutput = Send-PBHelp -ReturnOnly -Admin
-                        $TestOutput = ($CmdOutput[0].Split(':'))[0]
                     }
                     else
                     {
                         $CmdOutput = Send-PBHelp -ReturnOnly
-                        $TestOutput = ($CmdOutput.Split(':'))[0]
-                    }
-                }
-                elseif ($CmdRelevant[$CmdIndex].Message -like '!add*')
-                {
-                    if ($CmdRelevant[$CmdIndex].Name -eq 'Windos')
-                    {
-                        $TestOutput = 'Added '
-                    }
-                }
-                elseif ($CmdRelevant[$CmdIndex].Message -like '!edit*')
-                {
-                    if ($CmdRelevant[$CmdIndex].Name -eq 'Windos')
-                    {
-                        $TestOutput = 'Edited '
-                        $TestOutputAlt = 'Couldn''t edit '
-                    }
-                }
-                elseif ($CmdRelevant[$CmdIndex].Message -like '!remove*')
-                {
-                    if ($CmdRelevant[$CmdIndex].Name -eq 'Windos')
-                    {
-                        $TestOutput = 'Removed '
-                        $TestOutputAlt = 'Couldn''t remove '
                     }
                 }
                 else
                 {
                     $CmdOutput = $CommandObject.Message
-                    $TestOutput = $CmdOutput
-
-                    if ($CmdRelevant[$CmdIndex].Message -eq '!twitter')
-                    {
-                        $TestOutput = ($CmdOutput.Split(':'))[0]
-                    }
                 }
 
-                $ResponseFound = $false
-
-                Do
+                if ($CmdRelevant[0].Message -like '!add*')
                 {
-                    if ($CmdRelevant[$ResponseIndex].Message -like "$TestOutput*")
-                    {
-                        $ResponseFound = $true
-                    }
-                    elseif ($CmdRelevant[$ResponseIndex].Message -like "$TestOutputAlt*" -and $TestOutputAlt -ne '')
-                    {
-                        $ResponseFound = $true
-                    }
-                    else
-                    {
-                        $ResponseIndex--
-                    }
+                    Add-PBCommand -InputMessage $CmdRelevant[0].Message
                 }
-                While (!$ResponseFound -and $ResponseIndex -ge 0)
-
-                if (!$ResponseFound)
+                elseif ($CmdRelevant[0].Message -like '!edit*')
                 {
-                    if ($CmdRelevant[$CmdIndex].Message -like '!add*')
-                    {
-                        Add-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
-                    }
-                    elseif ($CmdRelevant[$CmdIndex].Message -like '!edit*')
-                    {
-                        Edit-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
-                    }
-                    elseif ($CmdRelevant[$CmdIndex].Message -like '!remove*')
-                    {
-                        Remove-PBCommand -InputMessage $CmdRelevant[$CmdIndex].Message
-                    }
-                    else
-                    {
-                        $CmdOutput | Out-Stream
-                    }
+                    Edit-PBCommand -InputMessage $CmdRelevant[0].Message
+                }
+                elseif ($CmdRelevant[0].Message -like '!remove*')
+                {
+                    Remove-PBCommand -InputMessage $CmdRelevant[0].Message
+                }
+                else
+                {
+                    $CmdOutput | Out-Stream
                 }
             }
         }
