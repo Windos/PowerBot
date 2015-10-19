@@ -20,13 +20,7 @@
         [string] $SavePath = ( Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\followers.txt' )
     )
 
-}
-
-while ($true)
-{
-    $XML = New-Object XML
-    $XML.Load($RSS)
-    $Followers = $XML.rss.channel.ChildNodes | Select-Object title | Where-Object {$_.title -ne $null}
+    $Followers = Invoke-RestMethod -Uri $RSS
     
     $Current = @()
     foreach ($Follower in $Followers)
@@ -50,5 +44,6 @@ while ($true)
     {
         New-BurntToastNotification -FirstLine 'New Follower!' -SecondLine "$NewFollower just followed!" -Sound Reminder
         $NewFollower | Out-File -FilePath $SavePath -Append
+        Start-Sleep -Seconds 0.5
     }
 }
