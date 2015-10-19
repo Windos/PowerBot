@@ -22,6 +22,16 @@
     $CmdResponses = $FullLog | Where-Object -FilterScript {
         $_.Name -eq 'PowerBot'
     } | Sort-Object -Property 'Timestamp' -Descending
+    
+    if (!$CmdResponses)
+    {
+        $Properties = @{
+            'Timestamp' = Get-Date -Hour '00' -Minute '01'
+            'Name'  = 'PowerBot'
+            'Message' = ''
+        }
+        $CmdResponses += New-Object -TypeName PSCustomObject -Property $Properties
+    }
 
     if ($CmdRelevant)
     {

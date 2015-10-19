@@ -1,0 +1,4 @@
+#TYPE System.Management.Automation.PSCustomObject
+"LastGreeted","Name"
+"1/09/2015 8:40:48 PM","windos"
+"1/09/2015 8:40:48 PM","windos-dummyentry"
