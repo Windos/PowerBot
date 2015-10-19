@@ -37,6 +37,7 @@
     {
         if ($CmdResponses[0].Timestamp -lt $CmdRelevant[0].Timestamp)
         {
+            $RawCommand = ($CmdRelevant[0].Message.Split(' '))[0]
             $CommandObject = $Global:PBCommands | Where-Object -FilterScript {
                 $_.Command -eq $RawCommand
             }
