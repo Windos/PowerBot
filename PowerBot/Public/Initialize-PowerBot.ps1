@@ -31,6 +31,7 @@
     $Script:ViewersGreeted = @()
     $Script:NewViewers = @{}
     $Script:PBCommands = @()
+    $Script:PersistentPath = Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\'
     #endregion
 
     #region XMPP
@@ -57,15 +58,13 @@
     Out-Stream -Message 'PowerBot: Online'
     Out-Stream -Message 'Use !help to see what I can do.'
 
-    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Save-XmppMessage -Message $args[1]}
+    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {MessageCallBack -Message $args[1]}
     #endregion
 
     #region LoadPersistentData
-    $PersistentPath = Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\'
-
-    if (Test-Path -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv'))
+    if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'commands.csv'))
     {
-        $Script:PBCommands = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv')
+        $Script:PBCommands = Import-Csv -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'commands.csv')
     }
     else
     {
@@ -75,9 +74,9 @@
         New-PBCommand -Command '!remove' -Message '' -Admin
     }
 
-    if (Test-Path -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv'))
+    if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewersGreeted.csv'))
     {
-        $Script:ViewersGreeted = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
+        $Script:ViewersGreeted = Import-Csv -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewersGreeted.csv')
     }
     else
     {
@@ -85,9 +84,7 @@
             'Name' = $Script:Config.Username
             'LastGreeted' = (Get-Date)
         }
-        New-Object -TypeName PSCustomObject -Property $Properties | Export-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
+        New-Object -TypeName PSCustomObject -Property $Properties | Export-Csv -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewersGreeted.csv')
     }
     #endregion
-
-
 }
