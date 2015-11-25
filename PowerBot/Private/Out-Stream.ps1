@@ -17,13 +17,7 @@
                    ValueFromPipeline = $true,
                    ValueFromPipelineByPropertyName = $true,
                    Position = 0)]
-        [string[]] $Message,
-
-        [Parameter(Mandatory = $true)]
-        [agsXMPP.XmppClientConnection] $Client,
-
-        [Parameter(Mandatory = $true)]
-        [agsXMPP.Jid] $Room
+        [string[]] $Message
     )
 
     Begin {}
@@ -32,11 +26,11 @@
     {
         foreach ($Output in $Message)
         {
-            $XmppMessage = New-Object -TypeName agsXMPP.protocol.client.Message -ArgumentList ($Room, [agsXMPP.protocol.client.MessageType]::groupchat, $Output)
+            $XmppMessage = New-Object -TypeName agsXMPP.protocol.client.Message -ArgumentList ($Script:Room, [agsXMPP.protocol.client.MessageType]::groupchat, $Output)
             
             if (!$Script:isMuted)
             {
-                $Client.Send($XmppMessage)
+                $Script:Client.Send($XmppMessage)
             }
         }
     }
