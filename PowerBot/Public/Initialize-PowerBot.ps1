@@ -39,8 +39,8 @@
     $RoomJid = New-Object -TypeName agsXMPP.Jid -ArgumentList "$($Script:Config.Streamer)@$($Script:Config.ChatServer)"
     
     $Script:Room = New-Object -TypeName agsXMPP.Jid -ArgumentList $RoomJid
-    $Script:Client =  New-Object -TypeName agsXMPP.XmppClientConnection  -ArgumentList $Server
-    $Script:Client.Open($UserJid.User, $Script:Config.Password)
+    $Script:Client =  New-Object -TypeName agsXMPP.XmppClientConnection  -ArgumentList $Script:Config.Server
+    $Script:Client.Open($UserJid.User, $Pass)
     
     while (!$Script:Client.Authenticated) {
         Write-Verbose -Message $Script:Client.XmppConnectionState
@@ -58,7 +58,7 @@
     Out-Stream -Message 'PowerBot: Online'
     Out-Stream -Message 'Use !help to see what I can do.'
 
-    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {MessageCallBack -Message $args[1]}
+    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Save-XmppMessage -Message $args[1]}
     #endregion
 
     #region LoadPersistentData
