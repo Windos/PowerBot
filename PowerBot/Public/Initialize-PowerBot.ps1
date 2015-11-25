@@ -58,7 +58,7 @@
     Out-Stream -Message 'PowerBot: Online'
     Out-Stream -Message 'Use !help to see what I can do.'
 
-    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Save-XmppMessage -Message $args[1]}
+    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Receive-XmppMessage -Message $args[1]}
     #endregion
 
     #region LoadPersistentData
