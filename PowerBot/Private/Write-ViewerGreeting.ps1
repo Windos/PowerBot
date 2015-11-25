@@ -13,7 +13,7 @@
     [CmdletBinding()]
     Param ()
 
-    #TODO: Regreet
+    #TODO: Regreet?
 
     $Greetings = @('Welcome {0}!',
         'Hey {0}',
@@ -27,15 +27,4 @@
     $Rand = $null
     $Rand = Get-Random -Minimum 0 -Maximum ($Greetings.Length - 1)
     Out-Stream -Message ($Greetings[$Rand] -f $User)
-
-    $Properties = @{
-        'Name'      = $User
-        'LastGreeted' = (Get-Date)
-    }
-    $Result = New-Object -TypeName PSCustomObject -Property $Properties
-    $Global:viewersGreeted += $Result
-    $Global:NewViewers.Remove($User)
-
-    $PersistentPath = Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\'
-    $Global:viewersGreeted | Export-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
 }
