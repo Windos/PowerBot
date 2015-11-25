@@ -26,14 +26,6 @@
         $Pass = $Script:Config.Password
     }
     
-    #region Script Variables
-    $Script:isMuted = $false
-    $Script:ViewersGreeted = @()
-    $Script:NewViewers = @{}
-    $Script:PBCommands = @()
-    $Script:PersistentPath = Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\'
-    #endregion
-
     #region XMPP
     $UserJid = New-Object -TypeName agsXMPP.Jid -ArgumentList "$($Script:Config.Username)@$($Script:Config.Server)"
     $RoomJid = New-Object -TypeName agsXMPP.Jid -ArgumentList "$($Script:Config.Streamer)@$($Script:Config.ChatServer)"

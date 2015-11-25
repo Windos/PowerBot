@@ -26,6 +26,11 @@ Foreach($Load in $Libraries)
     }
 }
 
-Export-ModuleMember -Function $Public.Basename
+$Script:PersistentPath = Join-Path -Path $PSScriptRoot -ChildPath '\PersistentData\'
+$Script:Config = Get-Content -Path $Script:PersistentPath\config.json -ErrorAction SilentlyContinue | ConvertFrom-Json
+$Script:isMuted = $false
+$Script:ViewersGreeted = @()
+$Script:NewViewers = @{}
+$Script:PBCommands = @()
 
-$Script:Config = Get-Content -Path $PSScriptRoot\PersistentData\config.json -ErrorAction SilentlyContinue | ConvertFrom-Json
+Export-ModuleMember -Function $Public.Basename
