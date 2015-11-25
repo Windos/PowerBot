@@ -22,10 +22,11 @@
 
     Begin {}
 
-    Process {
-        foreach ($output in $Message)
+    Process
+    {
+        foreach ($Output in $Message)
         {
-            if (!$Global:isMuted)
+            if (!$Script:isMuted)
             {
                 $Global:messageTextArea.SendKeys($output)
                 $Global:chatSendButton.Click()
