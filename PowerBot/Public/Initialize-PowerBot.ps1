@@ -1,107 +1,71 @@
 ﻿function Initialize-PowerBot
 {
     <#
-            .SYNOPSIS
-            Short Description
-            .DESCRIPTION
-            Detailed Description
-            .EXAMPLE
-            Initialize-PowerBot
-            explains how to use the command
-            can be multiple lines
-            .EXAMPLE
-            Initialize-PowerBot
-            another example
-            can have as many examples as you like
+        .SYNOPSIS
+        Short Description
+        .DESCRIPTION
+        Detailed Description
+        .EXAMPLE
+        Initialize-PowerBot
+        explains how to use the command
+        can be multiple lines
+        .EXAMPLE
+        Initialize-PowerBot
+        another example
+        can have as many examples as you like
     #>
     [CmdletBinding()]
-    Param (
-        [string] $Path = (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path),
-        [string] $Streamer = 'windos',
-        [string] $User = '',
-        [string] $Pass = ''
-    )
+    Param ()
 
-    Add-Type -Path (Join-Path -Path $Path -ChildPath '\lib\Selenium\Selenium.WebDriverBackedSelenium.dll')
-    Add-Type -Path (Join-Path -Path $Path -ChildPath '\lib\Selenium\ThoughtWorks.Selenium.Core.dll')
-    Add-Type -Path (Join-Path -Path $Path -ChildPath '\lib\Selenium\WebDriver.dll')
-    Add-Type -Path (Join-Path -Path $Path -ChildPath '\lib\Selenium\WebDriver.Support.dll')
-
-
-    $PhatomJsService = [OpenQA.Selenium.PhantomJS.PhantomJSDriverService]::CreateDefaultService((Join-Path -Path $Path -ChildPath '\bin\'))
-    $PhatomJsService.HideCommandPromptWindow = $true
-
-    $Global:PhantomJsDriver = New-Object -TypeName OpenQA.Selenium.PhantomJS.PhantomJSDriver -ArgumentList @(,$PhatomJsService)
-    $Global:PhantomJsDriver.Navigate().GoToUrl('https://www.livecoding.tv/accounts/login/')
-
-    $UserField = $Global:PhantomJsDriver.FindElementById('id_login')
-    $PassField = $Global:PhantomJsDriver.FindElementById('id_password')
-    $Buttons = $Global:PhantomJsDriver.FindElementsByTagName('button')
-
-    foreach ($Button in $Buttons)
+    if ($Script:Config.Password -like '*-BEGIN CMS-*')
     {
-        if ($Button.Text -eq 'Login')
-        {
-            $LoginButton = $Button
-        }
-    }
-
-    if ($User -notlike '*-BEGIN CMS-*')
-    {
-        $Cred = Get-Credential
-
-        $UserField.SendKeys($Cred.Username)
-        $PassField.SendKeys($Cred.GetNetworkCredential().Password)
+        $Pass = $Script:Config.Password | Unprotect-CmsMessage
     }
     else
     {
-        $UserField.SendKeys(($User | Unprotect-CmsMessage))
-        $PassField.SendKeys(($Pass | Unprotect-CmsMessage))
+        $Pass = $Script:Config.Password
+    }
+    
+    #region Script Variables
+    $Script:isMuted = $false
+    $Script:ViewersGreeted = @()
+    $Script:NewViewers = @{}
+    $Script:PBCommands = @()
+    #endregion
+
+    #region XMPP
+    $UserJid = New-Object -TypeName agsXMPP.Jid -ArgumentList "$($Script:Config.Username)@$($Script:Config.Server)"
+    $RoomJid = New-Object -TypeName agsXMPP.Jid -ArgumentList "$($Script:Config.Streamer)@$($Script:Config.ChatServer)"
+    
+    $Script:Room = New-Object -TypeName agsXMPP.Jid -ArgumentList $RoomJid
+    $Script:Client =  New-Object -TypeName agsXMPP.XmppClientConnection  -ArgumentList $Server
+    $Script:Client.Open($UserJid.User, $Script:Config.Password)
+    
+    while (!$Script:Client.Authenticated) {
+        Write-Verbose -Message $Script:Client.XmppConnectionState
+        Start-Sleep -Seconds 1
     }
 
-    $LoginButton.Click()
+    $Script:Client.SendMyPresence()
 
-    $Global:PhantomJsDriver.Navigate().GoToUrl("https://www.livecoding.tv/chat/$Streamer/")
+    $Script:MucManager = New-Object -TypeName agsXMPP.protocol.x.muc.MucManager -ArgumentList $Script:Client
+    $Script:MucManager.AcceptDefaultConfiguration($Script:Room);
+    $Script:MucManager.JoinRoom($Script:Room, $Script:Config.Username);
+    
+    Write-Verbose -Message 'Logged in'
 
-    $StopLoop = $false
-    [int]$Retrycount = 0
+    Out-Stream -Message 'PowerBot: Online'
+    Out-Stream -Message 'Use !help to see what I can do.'
 
-    do
-    {
-        try
-        {
-            $Global:messageTextArea = $Global:PhantomJsDriver.FindElementById('message-textarea')
-            $Global:chatSendButton = $Global:PhantomJsDriver.FindElementByClassName('submit')
-            $StopLoop = $true
-        }
-        catch
-        {
-            if ($Retrycount -gt 5)
-            {
-                $StopLoop = $true
-            }
-            else
-            {
-                Start-Sleep -Seconds 10
-                $Retrycount = $Retrycount + 1
-            }
-        }
-    }
-    While ($StopLoop -eq $false)
-
-    #region GlobalVariable
-    $Global:isMuted = $false
-    $Global:ViewersGreeted = @()
-    $Global:NewViewers = @{}
-    $Global:PBCommands = @()
+    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Save-XmppMessage -Message $args[1]}
     #endregion
 
     #region LoadPersistentData
-    $PersistentPath = Join-Path -Path $Path -ChildPath '\PersistentData\'
+    $PersistentPath = Join-Path -Path (Split-Path -Path (Get-Module -Name 'PowerBot' -ListAvailable).Path) -ChildPath '\PersistentData\'
 
     if (Test-Path -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv'))
     {
-        $Global:PBCommands = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv')
+        $Script:PBCommands = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'commands.csv')
     }
     else
     {
@@ -113,15 +77,17 @@
 
     if (Test-Path -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv'))
     {
-        $Global:ViewersGreeted = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
+        $Script:ViewersGreeted = Import-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
     }
     else
     {
         $Properties = @{
-            'Name' = $Streamer
+            'Name' = $Script:Config.Username
             'LastGreeted' = (Get-Date)
         }
         New-Object -TypeName PSCustomObject -Property $Properties | Export-Csv -Path (Join-Path -Path $PersistentPath -ChildPath 'viewersGreeted.csv')
     }
     #endregion
+
+
 }
