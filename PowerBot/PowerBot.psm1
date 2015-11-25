@@ -27,3 +27,5 @@ Foreach($Load in $Libraries)
 }
 
 Export-ModuleMember -Function $Public.Basename
+
+$Script:Config = Get-Content -Path $PSScriptRoot\PersistentData\config.json -ErrorAction SilentlyContinue | ConvertFrom-Json
