@@ -15,7 +15,9 @@
         can have as many examples as you like
     #>
     [CmdletBinding()]
-    Param ()
+    Param (
+        [switch] $Silent
+    )
 
     if ($Script:Config.Password -like '*-BEGIN CMS-*')
     {
@@ -43,12 +45,17 @@
 
     $Script:MucManager = New-Object -TypeName agsXMPP.protocol.x.muc.MucManager -ArgumentList $Script:Client
     $Script:MucManager.AcceptDefaultConfiguration($Script:Room);
-    $Script:MucManager.JoinRoom($Script:Room, $Script:Config.Username);
+    $Script:MucManager.JoinRoom($Script:Room, $Script:Config.Username, $true);
     
     Write-Verbose -Message 'Logged in'
 
-    Out-Stream -Message 'PowerBot: Online'
-    Out-Stream -Message 'Use !help to see what I can do.'
+    if (!$Silent)
+    {
+        Out-Stream -Message 'PowerBot: Online'
+        Out-Stream -Message 'Use !help to see what I can do.'
+    }
+
+    $Script:ConnectionTime = Get-Date
 
     Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Receive-XmppMessage -Message $args[1]}
     Register-ObjectEvent -InputObject $Script:Client -EventName OnPresence -Action {Receive-XmppPresence -Presence $args[1]}

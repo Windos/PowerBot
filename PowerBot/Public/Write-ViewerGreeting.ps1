@@ -11,9 +11,7 @@
         Another example of how to use this cmdlet
     #>
     [CmdletBinding()]
-    Param (
-        [string] $User
-    )
+    Param ()
 
     #TODO: Regreet?
 

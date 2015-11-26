@@ -17,12 +17,31 @@
         [agsXMPP.protocol.client.Presence] $Presence
     )
 
-    if ($Presence.Type -eq 'available')
+    if ($Presence.From.User -ne 'PowerBot' -and $Presence.From.Resource -notlike '*powerbot*')
     {
-        $client.Send((New-Object -TypeName agsXMPP.protocol.client.Message -ArgumentList ($room, [agsXMPP.protocol.client.MessageType]::groupchat, "Hi, $($Presence.from.User)")))
-    }
-    elseif ($Presence.Type -eq 'unavailable')
-    {
-        $client.Send((New-Object -TypeName agsXMPP.protocol.client.Message -ArgumentList ($room, [agsXMPP.protocol.client.MessageType]::groupchat, "Bye, $($Presence.from.User)")))
+        $JobName = "Greet-$($Presence.from.User)"
+        $RelevantJob = Get-Job -Name $JobName -ErrorAction SilentlyContinue
+    
+        if ($Presence.Type -eq 'available')
+        {
+            if ($RelevantJob -eq $null)
+            {
+                Start-Job -Name $JobName -ScriptBlock {
+                    Start-Sleep -Seconds 60
+                }
+            }
+        }
+        elseif ($Presence.Type -eq 'unavailable')
+        {
+            foreach ($Job in $RelevantJob) 
+            {
+                if ($Job.State -ne 'Completed')
+                {
+                    $RelevantJob | Stop-Job
+                    Start-Sleep -Seconds 1
+                    $RelevantJob | Remove-Job    
+                }
+            }
+        }
     }
 }
