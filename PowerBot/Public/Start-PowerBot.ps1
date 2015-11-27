@@ -1,4 +1,4 @@
-﻿function Initialize-PowerBot
+﻿function Start-PowerBot
 {
     <#
         .SYNOPSIS
