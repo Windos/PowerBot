@@ -1,8 +1,9 @@
 ﻿$Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
 $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
+$Classes = @( Get-ChildItem -Path $PSScriptRoot\Classes\*.ps1 -ErrorAction SilentlyContinue )
 $Libraries = @( Get-ChildItem -Path $PSScriptRoot\lib\*.dll -ErrorAction SilentlyContinue )
 
-Foreach($Import in @($Public + $Private))
+Foreach($Import in @($Public + $Private + $Classes))
 {
     Try
     {
