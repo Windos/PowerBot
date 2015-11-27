@@ -17,11 +17,22 @@
         [agsXMPP.protocol.client.Presence] $Presence
     )
 
-    if ($Presence.From.User -ne 'PowerBot' -and $Presence.From.Resource -notlike '*powerbot*')
+    $User = $Presence.From.User
+
+    if ($User -ne 'PowerBot' -and $Presence.From.Resource -notlike '*powerbot*')
     {    
         if ($Presence.Type -eq 'available')
         {
-            Write-ViewerGreeting -User $Presence.from.User
+            if ($User -in $Script:Viewers.Username)
+            {
+                Out-Stream -Message "I know you, $User!"
+            }
+            else
+            {
+                $NewViewer = [Viewer]::new($User)
+                $NewViewer.Greet()
+                $Script:Viewers += $NewViewer
+            }
         }
         elseif ($Presence.Type -eq 'unavailable')
         {
