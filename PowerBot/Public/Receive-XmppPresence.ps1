@@ -25,7 +25,17 @@
         {
             if ($User -in $Script:Viewers.Username)
             {
-                Out-Stream -Message "I know you, $User!"
+                $Viewer = $Script:Viewers | Where-Object -FilterScript {$_.Username -eq $User}
+
+                if ($Viewer.Greeted[-1].AddSeconds(20) -gt (Get-Date))
+                {
+                    Out-Stream -Message "$User, you're too quick!"
+                }
+                else
+                {
+                    Out-Stream -Message "I know you, $User!"
+                    $Viewer.Greet()
+                }
             }
             else
             {

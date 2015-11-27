@@ -59,9 +59,17 @@
 
     Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Receive-XmppMessage -Message $args[1]}
     Register-ObjectEvent -InputObject $Script:Client -EventName OnPresence -Action {Receive-XmppPresence -Presence $args[1]}
+    Register-EngineEvent PowerShell.Exiting -Action {Export-Viewer}
+    Register-ObjectEvent -InputObject $client -EventName OnClose -Action {Export-Viewer; Unregister-Event -SourceIdentifier PowerShell.Exiting}
     #endregion
 
     #region LoadPersistentData
+    if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewers.xml'))
+    {
+        $Script:Viewers += Import-Clixml -Path $Script:PersistentPath\viewers.xml
+        $Script:Viewers | Get-Member
+    }
+
     if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'commands.csv'))
     {
         $Script:PBCommands = Import-Csv -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'commands.csv')
