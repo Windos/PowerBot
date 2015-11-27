@@ -74,13 +74,4 @@
         New-PBCommand -Command '!remove' -Message '' -Admin
     }
     #endregion
-
-    #Testing dummy stuff
-    $NewViewer1 = [Viewer]::new('dummy1')
-    $NewViewer1.Greet()
-    $Script:Viewers += $NewViewer1
-
-    $NewViewer2 = [Viewer]::new('dummy2')
-    $NewViewer2.Greet()
-    $Script:Viewers += $NewViewer2
 }
