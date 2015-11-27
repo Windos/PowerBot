@@ -73,18 +73,5 @@
         New-PBCommand -Command '!edit' -Message '' -Admin
         New-PBCommand -Command '!remove' -Message '' -Admin
     }
-
-    if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewersGreeted.csv'))
-    {
-        $Script:ViewersGreeted = Import-Csv -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewersGreeted.csv')
-    }
-    else
-    {
-        $Properties = @{
-            'Name' = $Script:Config.Username
-            'LastGreeted' = (Get-Date)
-        }
-        New-Object -TypeName PSCustomObject -Property $Properties | Export-Csv -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewersGreeted.csv')
-    }
     #endregion
 }
