@@ -1,246 +1,246 @@
 ﻿class BotCommand
 {
+    [string] $Name
     [string] $Command
-    [string] $DisplayName
     [string] $Keyword
     [int] $Cost
     [string[]] $Group
     [string] $Message
     
-    BotCommand ([string] $Command)
+    BotCommand ([string] $Name)
     {
+        $this.Name = $Name
+    }
+
+    BotCommand ([string] $Name, [string] $Command)
+    {
+        $this.Name = $Name
         $this.Command = $Command
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName)
+    BotCommand ([string] $Name, [string] $Keyword)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
+        $this.Name = $Name
+        $this.Keyword = $Keyword
     }
 
-    BotCommand ([string] $Command, [string] $Keyword)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword)
     {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Keyword = $Keyword
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword)
+    BotCommand ([string] $Name, [int] $Cost)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Keyword = $Keyword
+        $this.Name = $Name
+        $this.Cost = $Cost
     }
 
-    BotCommand ([string] $Command, [int] $Cost)
+    BotCommand ([string] $Name, [string] $Command, [int] $Cost)
     {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Cost = $Cost
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [int] $Cost)
+    BotCommand ([string] $Name, [string] $Keyword, [int] $Cost)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Cost = $Cost
-    }
-
-    BotCommand ([string] $Command, [string] $Keyword, [int] $Cost)
-    {
-        $this.Command = $Command
+        $this.Name = $Name
         $this.Keyword = $Keyword
         $this.Cost = $Cost
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [int] $Cost)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [int] $Cost)
     {
+        $this.Name = $Name
         $this.Command = $Command
-        $this.DisplayName = $DisplayName
         $this.Keyword = $Keyword
         $this.Cost = $Cost
     }
 
-    BotCommand ([string] $Command, [string[]] $Group)
+    BotCommand ([string] $Name, [string[]] $Group)
     {
+        $this.Name = $Name
+        $this.Group = $Group
+    }
+
+    BotCommand ([string] $Name, [string] $Command, [string[]] $Group)
+    {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Group = $Group
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string[]] $Group)
+    BotCommand ([string] $Name, [string] $Keyword, [string[]] $Group)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Group = $Group
-    }
-
-    BotCommand ([string] $Command, [string] $Keyword, [string[]] $Group)
-    {
-        $this.Command = $Command
-        $this.Keyword = $Keyword
-        $this.Group = $Group
-    }
-
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [string[]] $Group)
-    {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
+        $this.Name = $Name
         $this.Keyword = $Keyword
         $this.Group = $Group
     }
 
-    BotCommand ([string] $Command, [int] $Cost, [string[]] $Group)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [string[]] $Group)
     {
-        $this.Command = $Command
-        $this.Cost = $Cost
-        $this.Group = $Group
-    }
-
-    BotCommand ([string] $Command, [string] $DisplayName, [int] $Cost, [string[]] $Group)
-    {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Cost = $Cost
-        $this.Group = $Group
-    }
-
-    BotCommand ([string] $Command, [string] $Keyword, [int] $Cost, [string[]] $Group)
-    {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Keyword = $Keyword
+        $this.Group = $Group
+    }
+
+    BotCommand ([string] $Name, [int] $Cost, [string[]] $Group)
+    {
+        $this.Name = $Name
         $this.Cost = $Cost
         $this.Group = $Group
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [int] $Cost, [string[]] $Group)
+    BotCommand ([string] $Name, [string] $Command, [int] $Cost, [string[]] $Group)
     {
+        $this.Name = $Name
         $this.Command = $Command
-        $this.DisplayName = $DisplayName
+        $this.Cost = $Cost
+        $this.Group = $Group
+    }
+
+    BotCommand ([string] $Name, [string] $Keyword, [int] $Cost, [string[]] $Group)
+    {
+        $this.Name = $Name
         $this.Keyword = $Keyword
         $this.Cost = $Cost
         $this.Group = $Group
     }
 
-    BotCommand ([string] $Command, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [int] $Cost, [string[]] $Group)
     {
+        $this.Name = $Name
+        $this.Command = $Command
+        $this.Keyword = $Keyword
+        $this.Cost = $Cost
+        $this.Group = $Group
+    }
+
+    BotCommand ([string] $Name, [string] $Message)
+    {
+        $this.Name = $Name
+        $this.Message = $Message
+    }
+
+    BotCommand ([string] $Name, [string] $Command, [string] $Message)
+    {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Message)
+    BotCommand ([string] $Name, [string] $Keyword, [string] $Message)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
+        $this.Name = $Name
+        $this.Keyword = $Keyword
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $Keyword, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [string] $Message)
     {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Keyword = $Keyword
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [string] $Message)
+    BotCommand ([string] $Name, [int] $Cost, [string] $Message)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Keyword = $Keyword
+        $this.Name = $Name
+        $this.Cost = $Cost
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [int] $Cost, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [int] $Cost, [string] $Message)
     {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Cost = $Cost
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [int] $Cost, [string] $Message)
+    BotCommand ([string] $Name, [string] $Keyword, [int] $Cost, [string] $Message)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Cost = $Cost
-        $this.Message = $Message
-    }
-
-    BotCommand ([string] $Command, [string] $Keyword, [int] $Cost, [string] $Message)
-    {
-        $this.Command = $Command
+        $this.Name = $Name
         $this.Keyword = $Keyword
         $this.Cost = $Cost
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [int] $Cost, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [int] $Cost, [string] $Message)
     {
+        $this.Name = $Name
         $this.Command = $Command
-        $this.DisplayName = $DisplayName
         $this.Keyword = $Keyword
         $this.Cost = $Cost
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [string[]] $Group, [string] $Message)
     {
+        $this.Name = $Name
+        $this.Group = $Group
+        $this.Message = $Message
+    }
+
+    BotCommand ([string] $Name, [string] $Command, [string[]] $Group, [string] $Message)
+    {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Group = $Group
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [string] $Keyword, [string[]] $Group, [string] $Message)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
+        $this.Name = $Name
+        $this.Keyword = $Keyword
         $this.Group = $Group
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $Keyword, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [string[]] $Group, [string] $Message)
     {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Keyword = $Keyword
         $this.Group = $Group
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [int] $Cost, [string[]] $Group, [string] $Message)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Keyword = $Keyword
+        $this.Name = $Name
+        $this.Cost = $Cost
         $this.Group = $Group
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [int] $Cost, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [int] $Cost, [string[]] $Group, [string] $Message)
     {
+        $this.Name = $Name
         $this.Command = $Command
         $this.Cost = $Cost
         $this.Group = $Group
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [int] $Cost, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [string] $Keyword, [int] $Cost, [string[]] $Group, [string] $Message)
     {
-        $this.Command = $Command
-        $this.DisplayName = $DisplayName
-        $this.Cost = $Cost
-        $this.Group = $Group
-        $this.Message = $Message
-    }
-
-    BotCommand ([string] $Command, [string] $Keyword, [int] $Cost, [string[]] $Group, [string] $Message)
-    {
-        $this.Command = $Command
+        $this.Name = $Name
         $this.Keyword = $Keyword
         $this.Cost = $Cost
         $this.Group = $Group
         $this.Message = $Message
     }
 
-    BotCommand ([string] $Command, [string] $DisplayName, [string] $Keyword, [int] $Cost, [string[]] $Group, [string] $Message)
+    BotCommand ([string] $Name, [string] $Command, [string] $Keyword, [int] $Cost, [string[]] $Group, [string] $Message)
     {
+        $this.Name = $Name
         $this.Command = $Command
-        $this.DisplayName = $DisplayName
         $this.Keyword = $Keyword
         $this.Cost = $Cost
         $this.Group = $Group
