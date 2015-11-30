@@ -27,10 +27,4 @@ Foreach($Load in $Libraries)
     }
 }
 
-$Script:PersistentPath = Join-Path -Path $PSScriptRoot -ChildPath '\PersistentData\'
-$Script:Config = Get-Content -Path $Script:PersistentPath\config.json -ErrorAction SilentlyContinue | ConvertFrom-Json
-$Script:isMuted = $false
-$Script:Viewers = @()
-$Script:PBCommands = @()
-
 Export-ModuleMember -Function $Public.Basename
