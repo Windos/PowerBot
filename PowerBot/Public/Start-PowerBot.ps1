@@ -54,20 +54,21 @@
         Out-Stream -Message 'PowerBot: Online'
         Out-Stream -Message 'Use !help to see what I can do.'
     }
-
-    $Script:ConnectionTime = Get-Date
-
-    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Receive-XmppMessage -Message $args[1]}
-    Register-ObjectEvent -InputObject $Script:Client -EventName OnPresence -Action {Receive-XmppPresence -Presence $args[1]}
-    Register-EngineEvent PowerShell.Exiting -Action {Export-Viewer}
-    Register-ObjectEvent -InputObject $client -EventName OnClose -Action {Export-Viewer; Unregister-Event -SourceIdentifier PowerShell.Exiting}
     #endregion
 
     #region LoadPersistentData
     if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'viewers.xml'))
     {
-        $Script:Viewers += Import-Clixml -Path $Script:PersistentPath\viewers.xml
-        $Script:Viewers | Get-Member
+        $Import = Import-Clixml -Path $Script:PersistentPath\viewers.xml
+        foreach ($ImportViewer in $Import)
+        {
+            $Viewer = [Viewer]::new($ImportViewer.Username)
+            foreach ($GreetTime in $ImportViewer.Greeted)
+            {
+                $Viewer.AddGreetTime($GreetTime.ToString())
+            }
+            $Script:Viewers += $Viewer
+        }
     }
 
     if (Test-Path -Path (Join-Path -Path $Script:PersistentPath -ChildPath 'commands.csv'))
@@ -82,4 +83,9 @@
         New-PBCommand -Command '!remove' -Message '' -Admin
     }
     #endregion
+
+    Register-ObjectEvent -InputObject $Script:Client -EventName OnMessage -Action {Receive-XmppMessage -Message $args[1]}
+    Register-ObjectEvent -InputObject $Script:Client -EventName OnPresence -Action {Receive-XmppPresence -Presence $args[1]}
+    Register-EngineEvent PowerShell.Exiting -Action {Export-Viewer}
+    Register-ObjectEvent -InputObject $client -EventName OnClose -Action {Export-Viewer; Unregister-Event -SourceIdentifier PowerShell.Exiting}
 }

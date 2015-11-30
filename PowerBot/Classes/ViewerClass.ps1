@@ -14,4 +14,9 @@
         $this.Greeted += Get-Date
         Write-ViewerGreeting -User $this.Username
     }
+
+    [void] AddGreetTime ([string] $DateTime)
+    {
+        $this.Greeted += Get-Date $DateTime
+    }
 }
