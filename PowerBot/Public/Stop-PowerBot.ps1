@@ -19,6 +19,4 @@
 
     $Script:mucManager.LeaveRoom($Script:Room, $Script:Config.Username)
     $Script:Client.Close()
-
-    Get-Job -Command 'Receive-Xmpp*' | Stop-Job | Remove-Job
 }
